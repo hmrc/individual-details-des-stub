@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class IndividualsRepository @Inject()(mongoConnectionProvider: MongoConnectionProvider)
-  extends ReactiveRepository[Individual, ShortNino]("individual", mongoConnectionProvider.mongoDatabase, JsonFormatters.ninoMatchJsonFormat, JsonFormatters.shortNinoJsonFormat) {
+  extends ReactiveRepository[Individual, ShortNino]("individual", mongoConnectionProvider.mongoDatabase, JsonFormatters.individualJsonFormat, JsonFormatters.shortNinoJsonFormat) {
 
   def create(individual: Individual): Future[Individual] = {
     insert(individual) map { writeResult =>

@@ -21,5 +21,5 @@ import uk.gov.hmrc.itmpindividualdetailsstub.domain.{Individual, ShortNino}
 
 object JsonFormatters {
   implicit val shortNinoJsonFormat = Json.format[ShortNino]
-  implicit val ninoMatchJsonFormat = Json.format[Individual]
+  implicit val individualJsonFormat = Json.format[Individual]
 }

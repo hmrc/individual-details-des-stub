@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.itmpindividualdetailsstub
+package uk.gov.hmrc.itmpindividualdetailsstub.config
 
 import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -28,7 +28,7 @@ object WSHttp extends WSGet with WSPut with WSPost with WSDelete with WSPatch wi
 }
 
 object MicroserviceAuditConnector extends AuditConnector with RunMode {
-  override lazy val auditingConfig = LoadAuditingConfig(s"auditing")
+  override lazy val auditingConfig = LoadAuditingConfig("auditing")
 }
 
 object MicroserviceAuthConnector extends AuthConnector with ServicesConfig {

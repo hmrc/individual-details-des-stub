@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.itmpindividualdetailsstub.controllers
+package uk.gov.hmrc.itmpindividualdetailsstub.repository
 
-import uk.gov.hmrc.play.microservice.controller.BaseController
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import play.api.mvc._
-import scala.concurrent.Future
+import javax.inject.{Inject, Singleton}
 
-object MicroserviceHelloWorld extends MicroserviceHelloWorld
+import play.modules.reactivemongo.ReactiveMongoComponent
 
-trait MicroserviceHelloWorld extends BaseController {
-
-	def hello() = Action.async { implicit request =>
-		Future.successful(Ok("Hello world"))
-	}
+@Singleton
+class MongoConnectionProvider @Inject()(reactiveMongoComponent: ReactiveMongoComponent) {
+  lazy val mongoDatabase = reactiveMongoComponent.mongoConnector.db
 }

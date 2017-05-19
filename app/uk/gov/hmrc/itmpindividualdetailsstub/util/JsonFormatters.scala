@@ -16,13 +16,22 @@
 
 package uk.gov.hmrc.itmpindividualdetailsstub.util
 
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Writes, Json}
 import uk.gov.hmrc.domain.TaxIds
 import uk.gov.hmrc.itmpindividualdetailsstub.domain._
 
 object JsonFormatters {
-  implicit val shortNinoJsonFormat = Json.format[ShortNino]
+  implicit val shortNinoJsonFormat = Json.format[NinoNoSuffix]
   implicit val individualAddressJsonFormat = Json.format[IndividualAddress]
   implicit val individualNameJsonFormat = Json.format[IndividualName]
   implicit val individualJsonFormat = Json.format[Individual]
+
+  implicit val errorResponseWrites = new Writes[ErrorResponse] {
+    def writes(e: ErrorResponse): JsValue = Json.obj("code" -> e.errorCode, "message" -> e.message)
+  }
+
+  implicit val taxIdsFormat = TaxIds.format(TaxIds.defaultSerialisableIds :_*)
+  implicit val CidNameJsonFormat = Json.format[CidName]
+  implicit val CidNamesJsonFormat = Json.format[CidNames]
+  implicit val CidPersonJsonFormat = Json.format[CidPerson]
 }

@@ -6,14 +6,17 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.versioning.SbtGitVersioning
 
 object MicroServiceBuild extends Build with MicroService {
+  import play.sbt.routes.RoutesKeys._
 
   val appName = "itmp-individual-details-stub"
 
   override lazy val appDependencies: Seq[ModuleID] = compile ++ test()
+  override lazy val playSettings : Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.itmpindividualdetailsstub.domain._", "uk.gov.hmrc.itmpindividualdetailsstub.Binders._"))
 
   val compile = Seq(
     "uk.gov.hmrc" %% "play-reactivemongo" % "5.2.0",
     ws,
+    "uk.gov.hmrc" %% "play-auditing" % "2.9.0",
     "uk.gov.hmrc" %% "microservice-bootstrap" % "5.15.0",
     "uk.gov.hmrc" %% "play-authorisation" % "4.3.0",
     "uk.gov.hmrc" %% "play-health" % "2.1.0",

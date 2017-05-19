@@ -16,10 +16,19 @@
 
 package uk.gov.hmrc.itmpindividualdetailsstub.domain
 
-import uk.gov.hmrc.domain.Nino
+import org.joda.time.LocalDate
+import uk.gov.hmrc.domain.{Nino, TaxIds}
 
-case class ShortNino(string: String) // TODO validation
+case class CidName(firstName: String, lastName: String)
 
-object ShortNino {
-  def apply(nino: Nino): ShortNino = ShortNino(nino.nino.substring(0, nino.nino.length - 1))
+case class CidNames(current: CidName)
+
+case class CidPerson(name: CidNames, ids: TaxIds, dateOfBirth: LocalDate)
+
+object CidPerson {
+  def apply(nino: Nino, individual: Individual): CidPerson = CidPerson(
+    CidNames(CidName(individual.name.firstForenameOrInitial, individual.name.surname)),
+    TaxIds(nino),
+    individual.dateOfBirth
+    )
 }

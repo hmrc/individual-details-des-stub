@@ -19,8 +19,9 @@ package uk.gov.hmrc.itmpindividualdetailsstub.controller
 import javax.inject.{Inject, Singleton}
 
 import play.api.libs.json.Json.toJson
-import play.api.mvc.{Action, AnyContent}
-import uk.gov.hmrc.itmpindividualdetailsstub.domain.ShortNino
+import play.api.mvc.{Result, Action, AnyContent}
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.itmpindividualdetailsstub.domain.{ErrorInternalServer, NinoNoSuffix}
 import uk.gov.hmrc.itmpindividualdetailsstub.service.IndividualsService
 import uk.gov.hmrc.itmpindividualdetailsstub.util.JsonFormatters._
 import uk.gov.hmrc.play.microservice.controller.BaseController
@@ -31,11 +32,21 @@ import scala.concurrent.Future.successful
 @Singleton
 class IndividualsController @Inject()(individualsService: IndividualsService) extends BaseController {
 
-    def get(shortNinoString: String): Action[AnyContent] = Action.async {
-    val shortNino = ShortNino(shortNinoString)
-    individualsService.read(shortNino) flatMap {
+  def fetchOrCreateIndividual(ninoNoSuffix: NinoNoSuffix): Action[AnyContent] = Action.async {
+    individualsService.read(ninoNoSuffix) flatMap {
       case Some(individual) => successful(individual)
-      case None => individualsService.create(shortNino)
-    } map (individual => Ok(toJson(individual)))
+      case None => individualsService.create(ninoNoSuffix)
+    } map (individual => Ok(toJson(individual))) recover recovery
+  }
+
+  def findCidPerson(nino: Nino): Action[AnyContent] = Action.async {
+    individualsService.getCidPerson(nino) map {
+      case Some(cidPerson) => Ok(toJson(cidPerson))
+      case None => NotFound
+    } recover recovery
+  }
+
+  private val recovery: PartialFunction[Throwable, Result] = {
+    case _ => ErrorInternalServer.toHttpResponse
   }
 }

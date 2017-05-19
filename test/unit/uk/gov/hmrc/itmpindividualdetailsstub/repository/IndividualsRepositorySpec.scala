@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.itmpindividualdetailsstub.repository
+package unit.uk.gov.hmrc.itmpindividualdetailsstub.repository
 
 import org.joda.time.LocalDate
 import org.mockito.Matchers.any
@@ -22,7 +22,8 @@ import org.mockito.Mockito.{doReturn, spy, when}
 import org.scalatest.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import reactivemongo.api.commands.WriteResult
-import uk.gov.hmrc.itmpindividualdetailsstub.domain.{IndividualAddress, IndividualName, Individual}
+import uk.gov.hmrc.itmpindividualdetailsstub.domain.{Individual, IndividualAddress, IndividualName}
+import uk.gov.hmrc.itmpindividualdetailsstub.repository.{IndividualsRepository, MongoConnectionProvider}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext

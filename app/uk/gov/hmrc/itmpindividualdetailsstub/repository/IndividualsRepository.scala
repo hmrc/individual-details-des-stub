@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 
 import play.api.libs.json.Json
 import reactivemongo.api.ReadPreference
-import uk.gov.hmrc.itmpindividualdetailsstub.domain.{Individual, ShortNino}
+import uk.gov.hmrc.itmpindividualdetailsstub.domain.{NinoNoSuffix, Individual}
 import uk.gov.hmrc.itmpindividualdetailsstub.util.JsonFormatters
 import uk.gov.hmrc.mongo.ReactiveRepository
 
@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class IndividualsRepository @Inject()(mongoConnectionProvider: MongoConnectionProvider)
-  extends ReactiveRepository[Individual, ShortNino]("individual", mongoConnectionProvider.mongoDatabase, JsonFormatters.individualJsonFormat, JsonFormatters.shortNinoJsonFormat) {
+  extends ReactiveRepository[Individual, NinoNoSuffix]("individual", mongoConnectionProvider.mongoDatabase, JsonFormatters.individualJsonFormat, JsonFormatters.shortNinoJsonFormat) {
 
   def create(individual: Individual): Future[Individual] = {
     insert(individual) map { writeResult =>
@@ -38,8 +38,8 @@ class IndividualsRepository @Inject()(mongoConnectionProvider: MongoConnectionPr
     }
   }
 
-  def read(shortNino: ShortNino): Future[Option[Individual]] = findById(shortNino)
+  def read(ninoNoSuffix: NinoNoSuffix): Future[Option[Individual]] = findById(ninoNoSuffix)
 
-  override def findById(id: ShortNino, readPreference: ReadPreference)(implicit ec: ExecutionContext): Future[Option[Individual]] = collection.find(Json.obj("id" -> id.string)).one[Individual]
+  override def findById(id: NinoNoSuffix, readPreference: ReadPreference)(implicit ec: ExecutionContext): Future[Option[Individual]] = collection.find(Json.obj("id" -> id.nino)).one[Individual]
 
 }

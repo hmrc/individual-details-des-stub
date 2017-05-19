@@ -33,10 +33,10 @@ case class Individual(nino: String, name: IndividualName, dateOfBirth: LocalDate
 
 object Individual {
 
-  def apply(shortNino: ShortNino): Individual = {
+  def apply(ninoNoSuffix: NinoNoSuffix): Individual = {
     val name = IndividualName("Amanda", "Joseph")
     val address = IndividualAddress("", "")
-    Individual(shortNino.string, name, LocalDate.parse("2000-01-01"), address) // TODO enhance and randomise
+    Individual(ninoNoSuffix.nino, name, LocalDate.parse("2000-01-01"), address) // TODO enhance and randomise
   }
 
 }

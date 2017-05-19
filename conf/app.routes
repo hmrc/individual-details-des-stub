@@ -1,3 +1,5 @@
 # microservice specific routes
 
-GET        /pay-as-you-earn/individuals/:shortNino        @uk.gov.hmrc.itmpindividualdetailsstub.controller.IndividualsController.get(shortNino: String)
+GET        /pay-as-you-earn/individuals/:ninoNoSuffix        @uk.gov.hmrc.itmpindividualdetailsstub.controller.IndividualsController.fetchOrCreateIndividual(ninoNoSuffix: NinoNoSuffix)
+
+GET        /matching/find                                 @uk.gov.hmrc.itmpindividualdetailsstub.controller.IndividualsController.findCidPerson(nino: Nino)

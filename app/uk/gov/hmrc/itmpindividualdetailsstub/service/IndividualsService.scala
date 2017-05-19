@@ -18,17 +18,24 @@ package uk.gov.hmrc.itmpindividualdetailsstub.service
 
 import javax.inject.{Inject, Singleton}
 
-import uk.gov.hmrc.itmpindividualdetailsstub.domain.{Individual, ShortNino}
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.itmpindividualdetailsstub.domain._
 import uk.gov.hmrc.itmpindividualdetailsstub.repository.IndividualsRepository
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
 class IndividualsService @Inject()(individualsRepository: IndividualsRepository) { // TODO add logging
 
-  def create(shortNino: ShortNino): Future[Individual] =
+  def create(shortNino: NinoNoSuffix): Future[Individual] =
     individualsRepository.create(Individual(shortNino))
 
-  def read(shortNino: ShortNino): Future[Option[Individual]] =
+  def read(shortNino: NinoNoSuffix): Future[Option[Individual]] =
     individualsRepository.read(shortNino)
+
+  def getCidPerson(nino: Nino): Future[Option[CidPerson]] = {
+    individualsRepository.read(NinoNoSuffix(nino)) map {_ map (CidPerson(nino, _))}
+  }
+
 }

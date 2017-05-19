@@ -1,4 +1,3 @@
 # microservice specific routes
 
-GET        /hello-world             uk.gov.hmrc.itmpindividualdetailsstub.controllers.MicroserviceHelloWorld.hello
 GET        /pay-as-you-earn/individuals/:shortNino        @uk.gov.hmrc.itmpindividualdetailsstub.controller.IndividualsController.get(shortNino: String)

@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.itmpindividualdetailsstub.repository
 
+import org.joda.time.LocalDate
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{doReturn, spy, when}
 import org.scalatest.ShouldMatchers
 import org.scalatest.mock.MockitoSugar
 import reactivemongo.api.commands.WriteResult
-import uk.gov.hmrc.itmpindividualdetailsstub.domain.Individual
+import uk.gov.hmrc.itmpindividualdetailsstub.domain.{IndividualAddress, IndividualName, Individual}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext
@@ -33,7 +34,10 @@ class IndividualsRepositorySpec extends UnitSpec with MockitoSugar with ShouldMa
 
   "Individuals repository create function" should {
 
-    val individual = Individual("id", "name")
+    val individual = Individual("AB123456",
+      IndividualName("John", "Doe"),
+      LocalDate.parse("1980-01-10"),
+      IndividualAddress("1 Stoke Ave", "Cardiff"))
 
     def mockRepositoryInsertToReturn(writeResult: WriteResult, resultCount: Int) = {
       doReturn(successful(writeResult)).when(individualsRepository).insert(any[Individual])(any[ExecutionContext])

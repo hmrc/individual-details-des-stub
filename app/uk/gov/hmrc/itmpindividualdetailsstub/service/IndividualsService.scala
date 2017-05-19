@@ -31,5 +31,4 @@ class IndividualsService @Inject()(individualsRepository: IndividualsRepository)
 
   def read(shortNino: ShortNino): Future[Option[Individual]] =
     individualsRepository.read(shortNino)
-
 }

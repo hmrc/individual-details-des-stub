@@ -16,4 +16,10 @@
 
 package uk.gov.hmrc.itmpindividualdetailsstub.domain
 
+import uk.gov.hmrc.domain.Nino
+
 case class ShortNino(string: String) // TODO validation
+
+object ShortNino {
+  def apply(nino: Nino): ShortNino = ShortNino(nino.nino.substring(0, nino.nino.length - 1))
+}

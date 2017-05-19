@@ -18,6 +18,7 @@ package uk.gov.hmrc.itmpindividualdetailsstub.controller
 
 import java.util.concurrent.TimeUnit.SECONDS
 
+import org.joda.time.LocalDate
 import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.mock.MockitoSugar
@@ -28,7 +29,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route, _}
-import uk.gov.hmrc.itmpindividualdetailsstub.domain.{Individual, ShortNino}
+import uk.gov.hmrc.itmpindividualdetailsstub.domain.{IndividualAddress, IndividualName, Individual, ShortNino}
 import uk.gov.hmrc.itmpindividualdetailsstub.service.IndividualsService
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -48,6 +49,11 @@ class IndividualsControllerSpec extends UnitSpec with BeforeAndAfterAll with Moc
 
   implicit val finiteDuration = FiniteDuration(10, SECONDS)
 
+  val individual = Individual("AB123456",
+    IndividualName("John", "Doe"),
+    LocalDate.parse("1980-01-10"),
+    IndividualAddress("1 Stoke Ave", "Cardiff"))
+
   "Individuals controller get function" should {
 
     val shortNino = ShortNino("AB123456")
@@ -61,8 +67,8 @@ class IndividualsControllerSpec extends UnitSpec with BeforeAndAfterAll with Moc
     def invoke(httpVerb: String, uriPath: String): Result =
       await(route(application, FakeRequest(GET, uriPath)).get)
 
-    "return an individual and a http 200 (ok) when repository read is successful" ignore {
-      mockIndividualsServiceReadToReturn(successful(Some(Individual("id", "name"))))
+    "return an individual and a http 200 (ok) when repository read is successful" in {
+      mockIndividualsServiceReadToReturn(successful(Some(individual)))
       val result = invoke(GET, "/pay-as-you-earn/individuals/AB123456")
       status(result) shouldBe OK
       bodyOf(result) shouldBe "moo"

@@ -19,23 +19,23 @@ package uk.gov.hmrc.itmpindividualdetailsstub.controller
 import javax.inject.{Inject, Singleton}
 
 import play.api.libs.json.Json.toJson
-import play.api.mvc.{Action, AnyContent, Controller}
+import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.itmpindividualdetailsstub.domain.ShortNino
 import uk.gov.hmrc.itmpindividualdetailsstub.service.IndividualsService
 import uk.gov.hmrc.itmpindividualdetailsstub.util.JsonFormatters._
+import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
 @Singleton
-class IndividualsController @Inject()(individualsService: IndividualsService) extends Controller {
+class IndividualsController @Inject()(individualsService: IndividualsService) extends BaseController {
 
-  def get(shortNinoString: String): Action[AnyContent] = Action.async {
+    def get(shortNinoString: String): Action[AnyContent] = Action.async {
     val shortNino = ShortNino(shortNinoString)
     individualsService.read(shortNino) flatMap {
       case Some(individual) => successful(individual)
       case None => individualsService.create(shortNino)
     } map (individual => Ok(toJson(individual)))
   }
-
 }

@@ -21,7 +21,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.itmpindividualdetailsstub.domain.{OpenidIndividual, NinoNoSuffix}
+import uk.gov.hmrc.itmpindividualdetailsstub.domain.{Individual, NinoNoSuffix}
 import uk.gov.hmrc.itmpindividualdetailsstub.repository.IndividualsRepository
 import uk.gov.hmrc.itmpindividualdetailsstub.util.JsonFormatters._
 

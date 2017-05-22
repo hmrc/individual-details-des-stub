@@ -40,6 +40,6 @@ class IndividualsRepository @Inject()(mongoConnectionProvider: MongoConnectionPr
 
   def read(ninoNoSuffix: NinoNoSuffix): Future[Option[Individual]] = findById(ninoNoSuffix)
 
-  override def findById(id: NinoNoSuffix, readPreference: ReadPreference)(implicit ec: ExecutionContext): Future[Option[Individual]] = collection.find(Json.obj("id" -> id.nino)).one[Individual]
+  override def findById(id: NinoNoSuffix, readPreference: ReadPreference)(implicit ec: ExecutionContext): Future[Option[Individual]] = collection.find(Json.obj("nino" -> id.nino)).one[Individual]
 
 }

@@ -24,7 +24,7 @@ import scala.util.Random
 
 trait Randomiser {
 
-  private lazy val config = ConfigFactory.load()
+  private lazy val config = ConfigFactory.load("randomiser")
   private lazy val minimumSchoolLeavingAge = 16
   private lazy val maximumAgeOfIndividual = 100
   private lazy val ageRange = minimumSchoolLeavingAge to maximumAgeOfIndividual

@@ -21,7 +21,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.itmpindividualdetailsstub.domain.{Individual, NinoNoSuffix}
+import uk.gov.hmrc.itmpindividualdetailsstub.domain.{OpenidIndividual, NinoNoSuffix}
 import uk.gov.hmrc.itmpindividualdetailsstub.repository.IndividualsRepository
 import uk.gov.hmrc.itmpindividualdetailsstub.util.JsonFormatters._
 
@@ -46,26 +46,24 @@ class IndividualDetailsStubSpec extends FeatureSpec with Matchers with GivenWhen
       val result = Http(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").asString
       result.code shouldBe Status.OK
 
-      Then("A generated individual is returned")
-      val individual = Json.parse(result.body).as[Individual]
-
-      And("The individual is stored in mongo")
+      Then("A generated individual is stored in mongo")
       val storedIndividual = Await.result(app.injector.instanceOf[IndividualsRepository].read(ninoNoSuffix), 10.seconds)
-      storedIndividual shouldBe Some(individual)
+      storedIndividual shouldNot be (None)
+
+      And("The individual is returned in an openid connect DES format")
+      Json.parse(result.body) shouldBe Json.toJson(OpenidIndividual(storedIndividual.get))
     }
 
     scenario("Retrieve generated individual") {
 
       Given("The individual has already been fetched before")
-      val response = Http(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").asString
-      val individualOnFirstFetch = Json.parse(response.body).as[Individual]
+      val firstIndividualFetchResponse = Http(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").asString
 
       When("I retrieve the individual by its NINO")
-      val result = Http(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").asString
-      val individualOnSecondFetch = Json.parse(response.body).as[Individual]
+      val secondIndividualFetchResponse = Http(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").asString
 
       Then("The same individual is returned")
-      individualOnSecondFetch shouldBe individualOnFirstFetch
+      Json.parse(firstIndividualFetchResponse.body) shouldBe Json.parse(secondIndividualFetchResponse.body)
     }
 
   }

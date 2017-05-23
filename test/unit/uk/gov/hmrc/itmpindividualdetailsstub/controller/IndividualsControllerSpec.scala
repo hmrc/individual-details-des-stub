@@ -51,31 +51,55 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
 
   val individual = Individual(
     nino = ninoNoSuffix.nino,
-    name = IndividualName("John", "Doe"),
+    name = IndividualName("John", "Doe", Some("Peter")),
     dateOfBirth = LocalDate.parse("1980-01-10"),
-    address = IndividualAddress("1 Stoke Ave", "Cardiff"))
+    address = IndividualAddress("1 Stoke Ave", "West district", Some("Cardiff"), Some("Wales"), Some("SW11PT"), Some(1)))
 
   val cidPerson = CidPerson(CidNames(CidName("John", "Doe")), TaxIds(nino), individual.dateOfBirth)
 
   "fetchOrCreateIndividual" should {
-    "return an individual and a http 200 (ok) when repository read is successful" in {
+    "return an openid individual and a http 200 (ok) when repository read is successful" in {
       mockIndividualsServiceReadToReturn(ninoNoSuffix, successful(Some(individual)))
 
       val result = invoke(GET, "/pay-as-you-earn/individuals/AB123456")
 
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe Json.toJson(individual)
+      jsonBodyOf(result) shouldBe Json.parse(
+        s"""
+          |{
+          |  "nino": "${ninoNoSuffix.value}",
+          |  "names": {
+          |    "1": {
+          |      "firstForenameOrInitial": "${individual.name.firstForenameOrInitial}",
+          |      "secondForenameOrInitial": "${individual.name.secondForenameOrInitial.get}",
+          |      "surname": "${individual.name.surname}"
+          |    }
+          |  },
+          |  "dateOfBirth": "${individual.dateOfBirth.toString("yyyy-MM-dd")}",
+          |  "addresses": {
+          |    "1": {
+          |      "line1": "${individual.address.line1}",
+          |      "line2": "${individual.address.line2}",
+          |      "line3": "${individual.address.line3.get}",
+          |      "line4": "${individual.address.line4.get}",
+          |      "postcode": "${individual.address.postcode.get}",
+          |      "countryCode": ${individual.address.countryCode.get}
+          |    }
+          |  }
+          |}
+        """.stripMargin)
     }
 
-    "return an individual and a http 200 (ok) when repository read is unsuccessful and repository create is successful" in {
+    "return an openid individual and a http 200 (ok) when repository read is unsuccessful and repository create is successful" in {
       mockIndividualsServiceReadToReturn(ninoNoSuffix, successful(None))
       mockIndividualsServiceCreateToReturn(ninoNoSuffix, successful(individual))
 
       val result = invoke(GET, "/pay-as-you-earn/individuals/AB123456")
 
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe Json.toJson(individual)
+      jsonBodyOf(result) shouldBe Json.toJson(OpenidIndividual(individual))
     }
+
     "return a http 400 (Bad Request) when the nino is invalid" in {
       mockIndividualsServiceReadToReturn(ninoNoSuffix, successful(None))
       mockIndividualsServiceCreateToReturn(ninoNoSuffix, successful(individual))

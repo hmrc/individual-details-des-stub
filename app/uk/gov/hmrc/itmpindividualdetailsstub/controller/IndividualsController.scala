@@ -21,7 +21,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Result, Action, AnyContent}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.itmpindividualdetailsstub.domain.{ErrorInternalServer, NinoNoSuffix}
+import uk.gov.hmrc.itmpindividualdetailsstub.domain.{OpenidIndividual, ErrorInternalServer, NinoNoSuffix}
 import uk.gov.hmrc.itmpindividualdetailsstub.service.IndividualsService
 import uk.gov.hmrc.itmpindividualdetailsstub.util.JsonFormatters._
 import uk.gov.hmrc.play.microservice.controller.BaseController
@@ -36,7 +36,7 @@ class IndividualsController @Inject()(individualsService: IndividualsService) ex
     individualsService.read(ninoNoSuffix) flatMap {
       case Some(individual) => successful(individual)
       case None => individualsService.create(ninoNoSuffix)
-    } map (individual => Ok(toJson(individual))) recover recovery
+    } map (individual => Ok(toJson(OpenidIndividual(individual)))) recover recovery
   }
 
   def findCidPerson(nino: Nino): Action[AnyContent] = Action.async {

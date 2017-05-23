@@ -21,7 +21,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Result, Action, AnyContent}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.itmpindividualdetailsstub.domain.{OpenidIndividual, ErrorInternalServer, NinoNoSuffix}
+import uk.gov.hmrc.itmpindividualdetailsstub.domain.{ErrorNotFound, OpenidIndividual, ErrorInternalServer, NinoNoSuffix}
 import uk.gov.hmrc.itmpindividualdetailsstub.service.IndividualsService
 import uk.gov.hmrc.itmpindividualdetailsstub.util.JsonFormatters._
 import uk.gov.hmrc.play.microservice.controller.BaseController
@@ -42,7 +42,7 @@ class IndividualsController @Inject()(individualsService: IndividualsService) ex
   def findCidPerson(nino: Nino): Action[AnyContent] = Action.async {
     individualsService.getCidPerson(nino) map {
       case Some(cidPerson) => Ok(toJson(cidPerson))
-      case None => NotFound
+      case None => ErrorNotFound.toHttpResponse
     } recover recovery
   }
 

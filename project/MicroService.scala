@@ -52,6 +52,7 @@ trait MicroService {
     .configs(ComponentTest)
     .settings(inConfig(ComponentTest)(Defaults.testSettings): _*)
     .settings(
+      Keys.fork in ComponentTest := false,
       testOptions in ComponentTest := Seq(Tests.Filter(componentFilter)),
       unmanagedSourceDirectories   in ComponentTest <<= (baseDirectory in ComponentTest)(base => Seq(base / "test")),
       testGrouping in ComponentTest := oneForkedJvmPerTest((definedTests in ComponentTest).value),

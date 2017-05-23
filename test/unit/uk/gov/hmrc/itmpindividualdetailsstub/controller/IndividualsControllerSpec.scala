@@ -117,7 +117,6 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
-
   }
 
   "getCidPerson" should {
@@ -136,6 +135,7 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = invoke(GET, s"/matching/find?nino=${nino.nino}")
 
       status(result) shouldBe NOT_FOUND
+      jsonBodyOf(result) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
     }
 
     "return a 500 (Internal Server Error) when an error occurred" in {
@@ -145,7 +145,6 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
-
   }
 
   private def invoke(httpVerb: String, uriPath: String): Result =

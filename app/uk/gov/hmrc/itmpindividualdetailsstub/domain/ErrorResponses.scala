@@ -31,3 +31,4 @@ sealed abstract class ErrorResponse(
 
 case object ErrorInternalServer extends ErrorResponse(INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "Internal server error")
 case class ErrorBadRequest(errorMessage: String) extends ErrorResponse(BAD_REQUEST, "BAD_REQUEST", errorMessage)
+case object ErrorNotFound extends ErrorResponse(NOT_FOUND, "NOT_FOUND", "Individual not found")

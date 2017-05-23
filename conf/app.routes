@@ -2,4 +2,4 @@
 
 GET        /pay-as-you-earn/individuals/:ninoNoSuffix        @uk.gov.hmrc.itmpindividualdetailsstub.controller.IndividualsController.fetchOrCreateIndividual(ninoNoSuffix: NinoNoSuffix)
 
-GET        /matching/find                                 @uk.gov.hmrc.itmpindividualdetailsstub.controller.IndividualsController.findCidPerson(nino: Nino)
+GET        /matching/find                                    @uk.gov.hmrc.itmpindividualdetailsstub.controller.IndividualsController.findCidPerson(nino: Nino)

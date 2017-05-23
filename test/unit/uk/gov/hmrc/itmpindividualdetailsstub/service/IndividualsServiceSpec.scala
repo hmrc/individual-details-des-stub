@@ -35,7 +35,7 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
   private val ninoNoSuffix = NinoNoSuffix("AB123456")
   private val nino = Nino("AB123456A")
   private val individual = Individual(
-    nino = ninoNoSuffix.nino,
+    ninoNoSuffix = ninoNoSuffix.nino,
     name = IndividualName("Amanda", "Jones"),
     dateOfBirth = LocalDate.parse("1970-01-04"),
     address = IndividualAddress("6 Oxford Street", "London")

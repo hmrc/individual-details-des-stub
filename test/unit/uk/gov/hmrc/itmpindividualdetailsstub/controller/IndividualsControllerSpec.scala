@@ -50,7 +50,7 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
   val ninoNoSuffix = NinoNoSuffix("AB123456")
 
   val individual = Individual(
-    nino = ninoNoSuffix.nino,
+    ninoNoSuffix = ninoNoSuffix.nino,
     name = IndividualName("John", "Doe", Some("Peter")),
     dateOfBirth = LocalDate.parse("1980-01-10"),
     address = IndividualAddress("1 Stoke Ave", "West district", Some("Cardiff"), Some("Wales"), Some("SW11PT"), Some(1)))

@@ -49,7 +49,7 @@ class IndividualsRepositorySpec extends UnitSpec with MockitoSugar with Matchers
 
   "Individuals repository" should {
     "create index for nino" in new Setup {
-      verify(indexManager).create(Index(Seq(("nino", Ascending)), Some("ninoIndex"), background = true, unique = true))
+      verify(indexManager).create(Index(Seq(("ninoNoSuffix", Ascending)), Some("ninoNoSuffixIndex"), background = true, unique = true))
     }
   }
 

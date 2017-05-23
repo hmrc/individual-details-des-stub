@@ -53,12 +53,12 @@ class IndividualsRepositorySpec extends UnitSpec with MongoSpecSupport with With
     "save an individual" in {
       await(individualRepository.create(individual))
 
-      val storedIndividual = await(individualRepository.findById(NinoNoSuffix(individual.nino)))
+      val storedIndividual = await(individualRepository.findById(NinoNoSuffix(individual.ninoNoSuffix)))
       storedIndividual shouldBe Some(individual)
     }
 
     "fail when trying to insert an individual with the same nino twice" in {
-      val individualWithSameNino = Individual(individual.nino,
+      val individualWithSameNino = Individual(individual.ninoNoSuffix,
         IndividualName("Mark", "Davis"),
         LocalDate.parse("1985-01-10"),
         IndividualAddress("10 Stoke Ave", "London"))
@@ -73,7 +73,7 @@ class IndividualsRepositorySpec extends UnitSpec with MongoSpecSupport with With
     "return the individual when present in the database" in {
       await(individualRepository.create(individual))
 
-      val result = await(individualRepository.read(NinoNoSuffix(individual.nino)))
+      val result = await(individualRepository.read(NinoNoSuffix(individual.ninoNoSuffix)))
 
       result shouldBe Some(individual)
     }

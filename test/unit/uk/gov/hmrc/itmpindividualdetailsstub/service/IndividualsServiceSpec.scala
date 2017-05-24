@@ -40,7 +40,7 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
     dateOfBirth = LocalDate.parse("1970-01-04"),
     address = IndividualAddress("6 Oxford Street", "London")
   )
-  private val cidPerson = CidPerson(CidNames(CidName("Amanda", "Jones")), TaxIds(nino), individual.dateOfBirth)
+  private val cidPerson = CidPerson(CidNames(CidName("Amanda", "Jones")), TaxIds(nino), "04011970")
 
   "Individuals service create function" should {
 

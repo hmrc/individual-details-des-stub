@@ -41,7 +41,7 @@ class IndividualsController @Inject()(individualsService: IndividualsService) ex
 
   def findCidPerson(nino: Nino): Action[AnyContent] = Action.async {
     individualsService.getCidPerson(nino) map {
-      case Some(cidPerson) => Ok(toJson(cidPerson))
+      case Some(cidPerson) => Ok(toJson(Seq(cidPerson)))
       case None => ErrorNotFound.toHttpResponse
     } recover recovery
   }

@@ -95,7 +95,7 @@ class IndividualDetailsStubSpec extends FeatureSpec with Matchers with GivenWhen
 
       Then("The individual is returned")
       result.code shouldBe Status.OK
-      Json.parse(result.body) shouldBe Json.toJson(CidPerson(nino, individual))
+      Json.parse(result.body) shouldBe Json.toJson(Seq(CidPerson(nino, individual)))
     }
 
     scenario("Look up an invalid NINO") {

@@ -23,12 +23,12 @@ case class CidName(firstName: String, lastName: String)
 
 case class CidNames(current: CidName)
 
-case class CidPerson(name: CidNames, ids: TaxIds, dateOfBirth: LocalDate)
+case class CidPerson(name: CidNames, ids: TaxIds, dateOfBirth: String)
 
 object CidPerson {
   def apply(nino: Nino, individual: Individual): CidPerson = CidPerson(
     CidNames(CidName(individual.name.firstForenameOrInitial, individual.name.surname)),
     TaxIds(nino),
-    individual.dateOfBirth
+    individual.dateOfBirth.toString("ddMMyyyy")
     )
 }

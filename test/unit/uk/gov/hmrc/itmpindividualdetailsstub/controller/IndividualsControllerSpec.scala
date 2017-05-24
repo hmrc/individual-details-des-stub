@@ -55,7 +55,7 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
     dateOfBirth = LocalDate.parse("1980-01-10"),
     address = IndividualAddress("1 Stoke Ave", "West district", Some("Cardiff"), Some("Wales"), Some("SW11PT"), Some(1)))
 
-  val cidPerson = CidPerson(CidNames(CidName("John", "Doe")), TaxIds(nino), individual.dateOfBirth)
+  val cidPerson = CidPerson(CidNames(CidName("John", "Doe")), TaxIds(nino), "10011980")
 
   "fetchOrCreateIndividual" should {
     "return an openid individual and a http 200 (ok) when repository read is successful" in {
@@ -120,13 +120,28 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
   }
 
   "getCidPerson" should {
-    "return the cidPerson when the repository contains the individual" in {
+    "return a sequence containing the cidPerson when the repository contains the individual" in {
       mockIndividualsServiceReadToReturn(nino, successful(Some(cidPerson)))
 
       val result = invoke(GET, s"/matching/find?nino=${nino.nino}")
 
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe Json.toJson(cidPerson)
+      jsonBodyOf(result) shouldBe Json.parse(
+        s"""
+          |[{
+          |   "ids": {
+          |     "nino": "${cidPerson.ids.nino.get}"
+          |   },
+          |   "name": {
+          |     "current": {
+          |       "firstName": "${cidPerson.name.current.firstName}",
+          |       "lastName": "${cidPerson.name.current.lastName}"
+          |     }
+          |   },
+          |   "dateOfBirth": "${cidPerson.dateOfBirth}"
+          |}]
+        """.stripMargin
+      )
     }
 
     "return a 404 (Not Found) when the repository does not contain the individual" in {

@@ -24,7 +24,8 @@ import scala.util.Random
 
 trait Randomiser {
 
-  private lazy val config = ConfigFactory.load("randomiser")
+  protected val fileName = "randomiser"
+  private lazy val config = ConfigFactory.load(fileName)
   private lazy val minimumSchoolLeavingAge = 16
   private lazy val maximumAgeOfIndividual = 100
   private lazy val ageRange = minimumSchoolLeavingAge to maximumAgeOfIndividual
@@ -36,8 +37,7 @@ trait Randomiser {
 
   def randomConfigString(configKey: String): String = {
     val strings = config.getStringList(configKey).asScala
-    if (strings.nonEmpty) strings(nextInt(strings.size))
-    else ""
+    strings(nextInt(strings.size) - 1)
   }
 
   private def nextInt(n: Int): Int = Random.nextInt(n) + 1

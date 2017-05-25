@@ -38,6 +38,7 @@ trait MicroService {
       testOptions in Test := Seq(Tests.Filter(unitFilter)),
       retrieveManaged := true,
       evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
+      unmanagedResourceDirectories in Test <<= (baseDirectory in Test)(base => Seq(base / "test/resources")),
       routesGenerator := StaticRoutesGenerator
     )
     .configs(IntegrationTest)

@@ -8,10 +8,10 @@ import uk.gov.hmrc.versioning.SbtGitVersioning
 object MicroServiceBuild extends Build with MicroService {
   import play.sbt.routes.RoutesKeys._
 
-  val appName = "itmp-individual-details-stub"
+  val appName = "individual-details-des-stub"
 
   override lazy val appDependencies: Seq[ModuleID] = compile ++ test()
-  override lazy val playSettings : Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.itmpindividualdetailsstub.domain._", "uk.gov.hmrc.itmpindividualdetailsstub.Binders._"))
+  override lazy val playSettings : Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.individualdetailsdesstub.domain._", "uk.gov.hmrc.individualdetailsdesstub.Binders._"))
 
   val compile = Seq(
     "uk.gov.hmrc" %% "play-reactivemongo" % "5.2.0",

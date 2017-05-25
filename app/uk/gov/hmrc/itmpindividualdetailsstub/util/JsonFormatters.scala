@@ -16,7 +16,9 @@
 
 package uk.gov.hmrc.itmpindividualdetailsstub.util
 
-import play.api.libs.json.{JsValue, Writes, Json}
+import org.joda.time.LocalDate
+import play.api.libs.functional.syntax._
+import play.api.libs.json.{JsPath, JsValue, Writes, Json}
 import uk.gov.hmrc.domain.TaxIds
 import uk.gov.hmrc.itmpindividualdetailsstub.domain._
 
@@ -34,4 +36,11 @@ object JsonFormatters {
   implicit val CidNameJsonFormat = Json.format[CidName]
   implicit val CidNamesJsonFormat = Json.format[CidNames]
   implicit val CidPersonJsonFormat = Json.format[CidPerson]
+
+  implicit val openidIndividualWrite : Writes[OpenidIndividual] = (
+    (JsPath \ "nino").write[String] and
+      (JsPath \ "names" \ "1").write[IndividualName] and
+      (JsPath \ "dateOfBirth").write[LocalDate] and
+      (JsPath \ "addresses" \ "1").write[IndividualAddress]
+    )(unlift(OpenidIndividual.unapply))
 }

@@ -17,11 +17,15 @@
 package unit.uk.gov.hmrc.itmpindividualdetailsstub.repository
 
 import org.joda.time.LocalDate
+import org.mockito.BDDMockito.given
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{doReturn, spy, when}
-import org.scalatest.ShouldMatchers
-import org.scalatest.mock.MockitoSugar
-import reactivemongo.api.commands.WriteResult
+import org.mockito.Mockito.{verify, doReturn, spy, when}
+import org.scalatest.Matchers
+import org.scalatest.mockito.MockitoSugar
+import reactivemongo.api.commands.{DefaultWriteResult, WriteResult}
+import reactivemongo.api.indexes.IndexType.Ascending
+import reactivemongo.api.indexes.{Index, CollectionIndexesManager}
+import reactivemongo.json.collection.JSONCollection
 import uk.gov.hmrc.itmpindividualdetailsstub.domain.{Individual, IndividualAddress, IndividualName}
 import uk.gov.hmrc.itmpindividualdetailsstub.repository.{IndividualsRepository, MongoConnectionProvider}
 import uk.gov.hmrc.play.test.UnitSpec
@@ -29,9 +33,25 @@ import uk.gov.hmrc.play.test.UnitSpec
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future.successful
 
-class IndividualsRepositorySpec extends UnitSpec with MockitoSugar with ShouldMatchers {
+class IndividualsRepositorySpec extends UnitSpec with MockitoSugar with Matchers {
 
-  private val individualsRepository = spy(new IndividualsRepository(mock[MongoConnectionProvider]))
+  private val jsonCollection = mock[JSONCollection]
+  private val indexManager = mock[CollectionIndexesManager]
+
+  trait Setup {
+    val success = DefaultWriteResult(ok = true, 1, Seq(), None, None, None)
+
+    given(jsonCollection.indexesManager(any())).willReturn(indexManager)
+    given(indexManager.create(any())).willReturn(success)
+
+    val individualsRepository = spy(new TestNinoMatchRepository(mock[MongoConnectionProvider]))
+  }
+
+  "Individuals repository" should {
+    "create index for nino" in new Setup {
+      verify(indexManager).create(Index(Seq(("ninoNoSuffix", Ascending)), Some("ninoNoSuffixIndex"), background = true, unique = true))
+    }
+  }
 
   "Individuals repository create function" should {
 
@@ -40,18 +60,18 @@ class IndividualsRepositorySpec extends UnitSpec with MockitoSugar with ShouldMa
       LocalDate.parse("1980-01-10"),
       IndividualAddress("1 Stoke Ave", "Cardiff"))
 
-    def mockRepositoryInsertToReturn(writeResult: WriteResult, resultCount: Int) = {
+    def mockRepositoryInsertToReturn(individualsRepository: IndividualsRepository, writeResult: WriteResult, resultCount: Int) = {
       doReturn(successful(writeResult)).when(individualsRepository).insert(any[Individual])(any[ExecutionContext])
       when(writeResult.n).thenReturn(resultCount)
     }
 
-    "return an individual when creation is successful" in {
-      mockRepositoryInsertToReturn(mock[WriteResult], 1)
+    "return an individual when creation is successful" in new Setup {
+      mockRepositoryInsertToReturn(individualsRepository, mock[WriteResult], 1)
       await(individualsRepository.create(individual)) shouldBe individual
     }
 
-    "propagate an exception when creation is unsuccessful" in {
-      mockRepositoryInsertToReturn(mock[WriteResult], 0)
+    "propagate an exception when creation is unsuccessful" in new Setup {
+      mockRepositoryInsertToReturn(individualsRepository, mock[WriteResult], 0)
       intercept[RuntimeException] {
         await(individualsRepository.create(individual))
       }.getMessage.startsWith("failed to persist individual") shouldBe true
@@ -59,4 +79,7 @@ class IndividualsRepositorySpec extends UnitSpec with MockitoSugar with ShouldMa
 
   }
 
+  class TestNinoMatchRepository(mongoConnectionProvider: MongoConnectionProvider) extends IndividualsRepository(mongoConnectionProvider) {
+    override lazy val collection = jsonCollection
+  }
 }

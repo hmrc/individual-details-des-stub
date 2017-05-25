@@ -28,10 +28,13 @@ object MicroServiceBuild extends Build with MicroService {
 
   def test(scope: String = "test,it") = Seq(
     "uk.gov.hmrc" %% "hmrctest" % "2.3.0" % scope,
+    "uk.gov.hmrc" %% "reactivemongo-test" % "2.0.0" % scope,
     "org.scalatest" %% "scalatest" % "2.2.6" % scope,
     "org.pegdown" % "pegdown" % "1.6.0" % scope,
     "org.mockito" % "mockito-all" % "1.10.19" % scope,
-    "com.typesafe.play" %% "play-test" % PlayVersion.current % scope
+    "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
+    "org.scalaj" %% "scalaj-http" % "2.3.0" % scope,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % scope
   )
 
 }

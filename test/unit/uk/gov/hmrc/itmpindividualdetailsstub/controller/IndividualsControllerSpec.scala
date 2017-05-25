@@ -50,32 +50,56 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
   val ninoNoSuffix = NinoNoSuffix("AB123456")
 
   val individual = Individual(
-    nino = ninoNoSuffix.nino,
-    name = IndividualName("John", "Doe"),
+    ninoNoSuffix = ninoNoSuffix.nino,
+    name = IndividualName("John", "Doe", Some("Peter")),
     dateOfBirth = LocalDate.parse("1980-01-10"),
-    address = IndividualAddress("1 Stoke Ave", "Cardiff"))
+    address = IndividualAddress("1 Stoke Ave", "West district", Some("Cardiff"), Some("Wales"), Some("SW11PT"), Some(1)))
 
-  val cidPerson = CidPerson(CidNames(CidName("John", "Doe")), TaxIds(nino), individual.dateOfBirth)
+  val cidPerson = CidPerson(CidNames(CidName("John", "Doe")), TaxIds(nino), "10011980")
 
   "fetchOrCreateIndividual" should {
-    "return an individual and a http 200 (ok) when repository read is successful" in {
+    "return an openid individual and a http 200 (ok) when repository read is successful" in {
       mockIndividualsServiceReadToReturn(ninoNoSuffix, successful(Some(individual)))
 
       val result = invoke(GET, "/pay-as-you-earn/individuals/AB123456")
 
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe Json.toJson(individual)
+      jsonBodyOf(result) shouldBe Json.parse(
+        s"""
+          |{
+          |  "nino": "${ninoNoSuffix.value}",
+          |  "names": {
+          |    "1": {
+          |      "firstForenameOrInitial": "${individual.name.firstForenameOrInitial}",
+          |      "secondForenameOrInitial": "${individual.name.secondForenameOrInitial.get}",
+          |      "surname": "${individual.name.surname}"
+          |    }
+          |  },
+          |  "dateOfBirth": "${individual.dateOfBirth.toString("yyyy-MM-dd")}",
+          |  "addresses": {
+          |    "1": {
+          |      "line1": "${individual.address.line1}",
+          |      "line2": "${individual.address.line2}",
+          |      "line3": "${individual.address.line3.get}",
+          |      "line4": "${individual.address.line4.get}",
+          |      "postcode": "${individual.address.postcode.get}",
+          |      "countryCode": ${individual.address.countryCode.get}
+          |    }
+          |  }
+          |}
+        """.stripMargin)
     }
 
-    "return an individual and a http 200 (ok) when repository read is unsuccessful and repository create is successful" in {
+    "return an openid individual and a http 200 (ok) when repository read is unsuccessful and repository create is successful" in {
       mockIndividualsServiceReadToReturn(ninoNoSuffix, successful(None))
       mockIndividualsServiceCreateToReturn(ninoNoSuffix, successful(individual))
 
       val result = invoke(GET, "/pay-as-you-earn/individuals/AB123456")
 
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe Json.toJson(individual)
+      jsonBodyOf(result) shouldBe Json.toJson(OpenidIndividual(individual))
     }
+
     "return a http 400 (Bad Request) when the nino is invalid" in {
       mockIndividualsServiceReadToReturn(ninoNoSuffix, successful(None))
       mockIndividualsServiceCreateToReturn(ninoNoSuffix, successful(individual))
@@ -93,17 +117,31 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
-
   }
 
   "getCidPerson" should {
-    "return the cidPerson when the repository contains the individual" in {
+    "return a sequence containing the cidPerson when the repository contains the individual" in {
       mockIndividualsServiceReadToReturn(nino, successful(Some(cidPerson)))
 
       val result = invoke(GET, s"/matching/find?nino=${nino.nino}")
 
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe Json.toJson(cidPerson)
+      jsonBodyOf(result) shouldBe Json.parse(
+        s"""
+          |[{
+          |   "ids": {
+          |     "nino": "${cidPerson.ids.nino.get}"
+          |   },
+          |   "name": {
+          |     "current": {
+          |       "firstName": "${cidPerson.name.current.firstName}",
+          |       "lastName": "${cidPerson.name.current.lastName}"
+          |     }
+          |   },
+          |   "dateOfBirth": "${cidPerson.dateOfBirth}"
+          |}]
+        """.stripMargin
+      )
     }
 
     "return a 404 (Not Found) when the repository does not contain the individual" in {
@@ -112,6 +150,7 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = invoke(GET, s"/matching/find?nino=${nino.nino}")
 
       status(result) shouldBe NOT_FOUND
+      jsonBodyOf(result) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
     }
 
     "return a 500 (Internal Server Error) when an error occurred" in {
@@ -121,7 +160,6 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
-
   }
 
   private def invoke(httpVerb: String, uriPath: String): Result =

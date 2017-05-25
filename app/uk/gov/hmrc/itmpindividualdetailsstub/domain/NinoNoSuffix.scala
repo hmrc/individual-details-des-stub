@@ -22,14 +22,12 @@ import uk.gov.hmrc.domain._
 case class NinoNoSuffix(nino: String) extends TaxIdentifier with SimpleName {
   require(NinoNoSuffix.isValid(nino), s"$nino is not a valid nino.")
   override def value: String = nino
-
   override val name: String = "nino-no-suffix"
 }
 
 object NinoNoSuffix extends (String => NinoNoSuffix) {
   implicit val ninoWrite: Writes[NinoNoSuffix] = new SimpleObjectWrites[NinoNoSuffix](_.value)
   implicit val ninoRead: Reads[NinoNoSuffix] = new SimpleObjectReads[NinoNoSuffix]("nino-no-suffix", NinoNoSuffix.apply)
-
 
   def isValid(nino: String) = nino != null && Nino.isValid(nino + "A")
 

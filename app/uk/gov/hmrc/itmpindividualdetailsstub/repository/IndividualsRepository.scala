@@ -20,6 +20,8 @@ import javax.inject.{Inject, Singleton}
 
 import play.api.libs.json.Json
 import reactivemongo.api.ReadPreference
+import reactivemongo.api.indexes.Index
+import reactivemongo.api.indexes.IndexType.Ascending
 import uk.gov.hmrc.itmpindividualdetailsstub.domain.{NinoNoSuffix, Individual}
 import uk.gov.hmrc.itmpindividualdetailsstub.util.JsonFormatters
 import uk.gov.hmrc.mongo.ReactiveRepository
@@ -31,6 +33,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class IndividualsRepository @Inject()(mongoConnectionProvider: MongoConnectionProvider)
   extends ReactiveRepository[Individual, NinoNoSuffix]("individual", mongoConnectionProvider.mongoDatabase, JsonFormatters.individualJsonFormat, JsonFormatters.shortNinoJsonFormat) {
 
+  override lazy val indexes = Seq(
+    Index(Seq(("ninoNoSuffix", Ascending)), Some("ninoNoSuffixIndex"), background = true, unique = true)
+  )
+
   def create(individual: Individual): Future[Individual] = {
     insert(individual) map { writeResult =>
       if (writeResult.n == 1) individual
@@ -40,6 +46,6 @@ class IndividualsRepository @Inject()(mongoConnectionProvider: MongoConnectionPr
 
   def read(ninoNoSuffix: NinoNoSuffix): Future[Option[Individual]] = findById(ninoNoSuffix)
 
-  override def findById(id: NinoNoSuffix, readPreference: ReadPreference)(implicit ec: ExecutionContext): Future[Option[Individual]] = collection.find(Json.obj("nino" -> id.nino)).one[Individual]
+  override def findById(id: NinoNoSuffix, readPreference: ReadPreference)(implicit ec: ExecutionContext): Future[Option[Individual]] = collection.find(Json.obj("ninoNoSuffix" -> id.nino)).one[Individual]
 
 }

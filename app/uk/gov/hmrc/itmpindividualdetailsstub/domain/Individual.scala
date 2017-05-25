@@ -45,7 +45,7 @@ object IndividualAddress extends Randomiser {
     )
 }
 
-case class Individual(nino: String, name: IndividualName, dateOfBirth: LocalDate, address: IndividualAddress)
+case class Individual(ninoNoSuffix: String, name: IndividualName, dateOfBirth: LocalDate, address: IndividualAddress)
 
 object Individual extends Randomiser {
 
@@ -53,4 +53,10 @@ object Individual extends Randomiser {
     Individual(ninoNoSuffix.nino, IndividualName(), randomNinoEligibleDateOfBirth(), IndividualAddress())
   }
 
+}
+
+case class OpenidIndividual(ninoNoSuffix: String, name: IndividualName, dateOfBirth: LocalDate, address: IndividualAddress)
+
+object OpenidIndividual {
+  def apply(individual: Individual): OpenidIndividual = OpenidIndividual(individual.ninoNoSuffix, individual.name, individual.dateOfBirth, individual.address)
 }

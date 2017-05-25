@@ -40,6 +40,6 @@ trait Randomiser {
     else ""
   }
 
-  private def nextInt(n: Int): Int = Random.nextInt(n + 1)
+  private def nextInt(n: Int): Int = Random.nextInt(n) + 1
 
 }

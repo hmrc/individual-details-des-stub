@@ -23,26 +23,26 @@ import uk.gov.hmrc.play.test.UnitSpec
 class RandomiserSpec extends UnitSpec {
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toDate.getTime)
 
-  trait Setup extends Randomiser {
-    override val fileName = "testRandomiser"
+  trait Setup {
+    val underTest = new Randomiser("testRandomiser")
   }
 
   "randomNinoEligibleDateOfBirth" should {
     "return a random date" in new Setup {
-      val date1 = randomNinoEligibleDateOfBirth()
-      val date2 = randomNinoEligibleDateOfBirth()
+      val date1 = underTest.randomNinoEligibleDateOfBirth()
+      val date2 = underTest.randomNinoEligibleDateOfBirth()
 
       date1 shouldNot be (date2)
     }
 
     "return a date more than 16 years old" in new Setup {
-      val date = randomNinoEligibleDateOfBirth()
+      val date = underTest.randomNinoEligibleDateOfBirth()
 
       date should be <= LocalDate.now().minusYears(16)
     }
 
     "return a date less than 100 years old" in new Setup {
-      val date = randomNinoEligibleDateOfBirth()
+      val date = underTest.randomNinoEligibleDateOfBirth()
 
       date should be >= LocalDate.now().minusYears(101)
     }
@@ -50,12 +50,11 @@ class RandomiserSpec extends UnitSpec {
 
   "randomConfigString" should {
     "return the property from the properties file when there is only one entry" in new Setup {
-      randomConfigString("randomiser.oneEntry") shouldBe "entry"
+      underTest.randomConfigString("randomiser.oneEntry") shouldBe "entry"
     }
 
     "pick randomly from the property file when there are multiple entries" in new Setup {
-      randomConfigString("randomiser.twoEntries") should (equal ("entry1") or equal ("entry2"))
+      underTest.randomConfigString("randomiser.twoEntries") should (equal ("entry1") or equal ("entry2"))
     }
-
   }
 }

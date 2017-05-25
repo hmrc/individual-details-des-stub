@@ -22,9 +22,8 @@ import org.joda.time.LocalDate
 import scala.collection.JavaConverters._
 import scala.util.Random
 
-trait Randomiser {
+class Randomiser(fileName: String = "randomiser") {
 
-  protected val fileName = "randomiser"
   private lazy val config = ConfigFactory.load(fileName)
   private lazy val minimumSchoolLeavingAge = 16
   private lazy val maximumAgeOfIndividual = 100

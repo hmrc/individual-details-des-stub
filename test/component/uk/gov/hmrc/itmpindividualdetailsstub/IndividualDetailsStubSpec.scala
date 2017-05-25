@@ -34,7 +34,7 @@ import scalaj.http.Http
 class IndividualDetailsStubSpec extends FeatureSpec with Matchers with GivenWhenThen with GuiceOneServerPerSuite with BeforeAndAfterEach {
   override lazy val port = 19000
   override lazy val app = new GuiceApplicationBuilder()
-    .configure("mongodb.uri" -> "mongodb://localhost:27017/itmp-individual-details-stub-it")
+    .configure("mongodb.uri" -> "mongodb://localhost:27017/individual-details-des-stub-it")
     .build()
   val timeout = 10.seconds
   val repository = app.injector.instanceOf[IndividualsRepository]
@@ -56,6 +56,7 @@ class IndividualDetailsStubSpec extends FeatureSpec with Matchers with GivenWhen
     scenario("Create individual on first fetch") {
 
       Given("The individual does not exist in the repository")
+      Await.result(repository.read(ninoNoSuffix), timeout) shouldBe (None)
 
       When("I retrieve the individual by its NINO")
       val result = Http(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").asString
@@ -101,6 +102,7 @@ class IndividualDetailsStubSpec extends FeatureSpec with Matchers with GivenWhen
     scenario("Look up an invalid NINO") {
 
       Given("The individual does not exist in the repository")
+      Await.result(repository.read(ninoNoSuffix), timeout) shouldBe (None)
 
       When("I try to match the individual by its NINO")
       val result = Http(s"$serviceUrl/matching/find?nino=$nino").asString

@@ -18,7 +18,7 @@ package uk.gov.hmrc.individualdetailsdesstub.util
 
 import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
-import play.api.libs.json.{JsPath, JsValue, Writes, Json}
+import play.api.libs.json.{JsPath, JsValue, Json, Writes}
 import uk.gov.hmrc.domain.TaxIds
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 
@@ -27,6 +27,10 @@ object JsonFormatters {
   implicit val individualAddressJsonFormat = Json.format[IndividualAddress]
   implicit val individualNameJsonFormat = Json.format[IndividualName]
   implicit val individualJsonFormat = Json.format[Individual]
+
+  implicit val formatTestUserAddress = Json.format[TestUserAddress]
+  implicit val formatTestUserIndividualDetails = Json.format[TestUserIndividualDetails]
+  implicit val formatTestUser = Json.format[TestUser]
 
   implicit val errorResponseWrites = new Writes[ErrorResponse] {
     def writes(e: ErrorResponse): JsValue = Json.obj("code" -> e.errorCode, "message" -> e.message)

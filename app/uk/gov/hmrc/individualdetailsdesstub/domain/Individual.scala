@@ -49,10 +49,12 @@ case class Individual(ninoNoSuffix: String, name: IndividualName, dateOfBirth: L
 
 object Individual extends Randomiser {
 
-  def apply(ninoNoSuffix: NinoNoSuffix): Individual = {
-    Individual(ninoNoSuffix.nino, IndividualName(), randomNinoEligibleDateOfBirth(), IndividualAddress())
+  def apply(ninoNoSuffix: NinoNoSuffix, testUser: TestUser): Individual = {
+    Individual(ninoNoSuffix.nino,
+      IndividualName(testUser.individualDetails.firstName, testUser.individualDetails.lastName),
+      testUser.individualDetails.dateOfBirth,
+      IndividualAddress(testUser.individualDetails.address.line1, testUser.individualDetails.address.line2))
   }
-
 }
 
 case class OpenidIndividual(ninoNoSuffix: String, name: IndividualName, dateOfBirth: LocalDate, address: IndividualAddress)

@@ -19,23 +19,21 @@ package uk.gov.hmrc.individualdetailsdesstub.service
 import javax.inject.{Inject, Singleton}
 
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnector
 import uk.gov.hmrc.individualdetailsdesstub.domain._
-import uk.gov.hmrc.individualdetailsdesstub.repository.IndividualsRepository
+import uk.gov.hmrc.play.http.HeaderCarrier
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 @Singleton
-class IndividualsService @Inject()(individualsRepository: IndividualsRepository) { // TODO add logging
+class IndividualsService @Inject()(apiPlatformTestUserConnector: ApiPlatformTestUserConnector) {
 
-  def create(shortNino: NinoNoSuffix): Future[Individual] =
-    individualsRepository.create(Individual(shortNino))
+  def getByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[Individual] =
+    apiPlatformTestUserConnector.getByShortNino(shortNino) map (Individual(shortNino, _))
 
-  def read(shortNino: NinoNoSuffix): Future[Option[Individual]] =
-    individualsRepository.read(shortNino)
-
-  def getCidPerson(nino: Nino): Future[Option[CidPerson]] = {
-    individualsRepository.read(NinoNoSuffix(nino)) map {_ map (CidPerson(nino, _))}
+  def getByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[CidPerson] = {
+    apiPlatformTestUserConnector.getByNino(nino) map (CidPerson(nino, _))
   }
 
 }

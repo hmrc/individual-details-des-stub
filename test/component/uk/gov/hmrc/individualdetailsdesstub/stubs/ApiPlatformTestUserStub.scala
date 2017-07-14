@@ -1,0 +1,81 @@
+/*
+ * Copyright 2017 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package component.uk.gov.hmrc.individualdetailsdesstub.stubs
+
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlPathEqualTo}
+import org.joda.time.LocalDate._
+import org.joda.time.format.DateTimeFormat
+import play.api.http.Status
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.individualdetailsdesstub.domain.{CidPerson, Individual, NinoNoSuffix}
+
+object ApiPlatformTestUserStub extends MockHost(22001) {
+
+  def getByNinoReturnsTestUserDetails(nino: Nino, cidPerson: CidPerson) = {
+    mock.register(get(urlPathEqualTo(s"/individuals/nino/$nino"))
+      .willReturn(aResponse().withStatus(Status.OK)
+        .withBody(
+          s"""{
+             |  "userId": "945350439195",
+             |  "password": "bLohysg8utsa",
+             |  "saUtr": "12345",
+             |  "nino": "$nino",
+             |  "individualDetails": {
+             |    "firstName": "${cidPerson.name.current.firstName}",
+             |    "lastName": "${cidPerson.name.current.lastName}",
+             |    "dateOfBirth": "${parse(cidPerson.dateOfBirth, DateTimeFormat.forPattern("ddMMyyyy")).toString("yyyy-MM-dd")}",
+             |    "address": {
+             |      "line1": "1 Abbey Road",
+             |      "line2": "Aberdeen"
+             |    }
+             |  }
+             |}""".stripMargin.replaceAll("\n", ""))))
+  }
+
+  def getByNinoReturnsNoTestUser(nino: Nino) = {
+    mock.register(get(urlPathEqualTo(s"/individuals/nino/$nino"))
+      .willReturn(aResponse().withStatus(Status.NOT_FOUND)))
+  }
+
+  def getByShortNinoReturnsTestUserDetails(nino: Nino, individual: Individual) = {
+    mock.register(get(urlPathEqualTo(s"/individuals/shortnino/${individual.ninoNoSuffix}"))
+      .willReturn(aResponse().withStatus(Status.OK)
+        .withBody(
+          s"""{
+             |  "userId": "945350439195",
+             |  "password": "bLohysg8utsa",
+             |  "saUtr": "12345",
+             |  "nino": "$nino",
+             |  "individualDetails": {
+             |    "firstName": "${individual.name.firstForenameOrInitial}",
+             |    "lastName": "${individual.name.surname}",
+             |    "dateOfBirth": "${individual.dateOfBirth.toString("yyyy-MM-dd")}",
+             |    "address": {
+             |      "line1": "${individual.address.line1}",
+             |      "line2": "${individual.address.line2}"
+             |    }
+             |  }
+             |}""".stripMargin.replaceAll("\n", ""))))
+
+  }
+
+  def getByShortNinoReturnsNoTestUser(ninoNoSuffix: NinoNoSuffix) = {
+    mock.register(get(urlPathEqualTo(s"/individuals/shortnino/${ninoNoSuffix.nino}"))
+      .willReturn(aResponse().withStatus(Status.NOT_FOUND)))
+
+  }
+}

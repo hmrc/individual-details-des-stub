@@ -17,18 +17,10 @@
 package uk.gov.hmrc.individualdetailsdesstub.domain
 
 import org.joda.time.LocalDate
-import uk.gov.hmrc.individualdetailsdesstub.util.Randomiser
 
 case class IndividualName(firstForenameOrInitial: String,
                           surname: String,
                           secondForenameOrInitial: Option[String] = None)
-
-object IndividualName extends Randomiser {
-  def apply(): IndividualName = IndividualName(
-    randomConfigString("randomiser.individualName.forename"),
-    randomConfigString("randomiser.individualName.surname")
-  )
-}
 
 case class IndividualAddress(line1: String,
                              line2: String,
@@ -37,17 +29,9 @@ case class IndividualAddress(line1: String,
                              postcode: Option[String] = None,
                              countryCode: Option[Int] = None)
 
-object IndividualAddress extends Randomiser {
-  def apply(): IndividualAddress =
-    IndividualAddress(
-      randomConfigString("randomiser.individualAddress.line1"),
-      randomConfigString("randomiser.individualAddress.line2")
-    )
-}
-
 case class Individual(ninoNoSuffix: String, name: IndividualName, dateOfBirth: LocalDate, address: IndividualAddress)
 
-object Individual extends Randomiser {
+object Individual {
 
   def apply(ninoNoSuffix: NinoNoSuffix, testUser: TestUser): Individual = {
     Individual(ninoNoSuffix.nino,

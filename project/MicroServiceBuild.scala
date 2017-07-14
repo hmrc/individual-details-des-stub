@@ -14,7 +14,6 @@ object MicroServiceBuild extends Build with MicroService {
   override lazy val playSettings : Seq[Setting[_]] = Seq(routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.individualdetailsdesstub.domain._", "uk.gov.hmrc.individualdetailsdesstub.Binders._"))
 
   val compile = Seq(
-    "uk.gov.hmrc" %% "play-reactivemongo" % "5.2.0",
     ws,
     "uk.gov.hmrc" %% "play-auditing" % "2.9.0",
     "uk.gov.hmrc" %% "microservice-bootstrap" % "5.15.0",
@@ -28,7 +27,6 @@ object MicroServiceBuild extends Build with MicroService {
 
   def test(scope: String = "test,it") = Seq(
     "uk.gov.hmrc" %% "hmrctest" % "2.3.0" % scope,
-    "uk.gov.hmrc" %% "reactivemongo-test" % "2.0.0" % scope,
     "org.scalatest" %% "scalatest" % "2.2.6" % scope,
     "org.pegdown" % "pegdown" % "1.6.0" % scope,
     "org.mockito" % "mockito-all" % "1.10.19" % scope,

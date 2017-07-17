@@ -27,7 +27,7 @@ case class CidPerson(name: CidNames, ids: TaxIds, dateOfBirth: String)
 
 object CidPerson {
 
-  def apply(nino: Nino, testUser: TestUser): CidPerson = {
+  def apply(nino: Nino, testUser: TestIndividual): CidPerson = {
     val ids: Seq[TaxIdWithName] = Seq(testUser.nino, testUser.saUtr) flatten
 
     CidPerson(

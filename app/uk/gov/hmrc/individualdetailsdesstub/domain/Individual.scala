@@ -33,7 +33,7 @@ case class Individual(ninoNoSuffix: String, name: IndividualName, dateOfBirth: L
 
 object Individual {
 
-  def apply(ninoNoSuffix: NinoNoSuffix, testUser: TestUser): Individual = {
+  def apply(ninoNoSuffix: NinoNoSuffix, testUser: TestIndividual): Individual = {
     Individual(ninoNoSuffix.nino,
       IndividualName(testUser.individualDetails.firstName, testUser.individualDetails.lastName),
       testUser.individualDetails.dateOfBirth,

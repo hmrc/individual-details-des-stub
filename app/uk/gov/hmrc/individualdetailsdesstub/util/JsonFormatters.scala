@@ -30,7 +30,7 @@ object JsonFormatters {
 
   implicit val formatTestUserAddress = Json.format[TestUserAddress]
   implicit val formatTestUserIndividualDetails = Json.format[TestUserIndividualDetails]
-  implicit val formatTestUser = Json.format[TestUser]
+  implicit val formatTestUser = Json.format[TestIndividual]
 
   implicit val errorResponseWrites = new Writes[ErrorResponse] {
     def writes(e: ErrorResponse): JsValue = Json.obj("code" -> e.errorCode, "message" -> e.message)

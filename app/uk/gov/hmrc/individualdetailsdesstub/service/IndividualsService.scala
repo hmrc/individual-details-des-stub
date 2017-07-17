@@ -29,10 +29,10 @@ import scala.concurrent.Future
 @Singleton
 class IndividualsService @Inject()(apiPlatformTestUserConnector: ApiPlatformTestUserConnector) {
 
-  def getByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[Individual] =
+  def getIndividualByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[Individual] =
     apiPlatformTestUserConnector.getByShortNino(shortNino) map (Individual(shortNino, _))
 
-  def getByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[CidPerson] = {
+  def getCidPersonByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[CidPerson] = {
     apiPlatformTestUserConnector.getByNino(nino) map (CidPerson(nino, _))
   }
 

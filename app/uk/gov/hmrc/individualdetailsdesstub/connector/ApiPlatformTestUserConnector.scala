@@ -20,7 +20,7 @@ import javax.inject.Singleton
 
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.individualdetailsdesstub.config.WSHttp
-import uk.gov.hmrc.individualdetailsdesstub.domain.{NinoNoSuffix, TestUser, TestUserNotFoundException}
+import uk.gov.hmrc.individualdetailsdesstub.domain.{NinoNoSuffix, TestIndividual, TestUserNotFoundException}
 import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters.formatTestUser
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpGet, NotFoundException}
@@ -33,14 +33,14 @@ class ApiPlatformTestUserConnector extends ServicesConfig {
   val serviceUrl = baseUrl("api-platform-test-user")
   val http: HttpGet = WSHttp
 
-  def getByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestUser] = {
-    http.GET[TestUser](s"$serviceUrl/individuals/nino/$nino") recover {
+  def getByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
+    http.GET[TestIndividual](s"$serviceUrl/individuals/nino/$nino") recover {
       case _: NotFoundException => throw new TestUserNotFoundException
     }
   }
 
-  def getByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[TestUser] = {
-    http.GET[TestUser](s"$serviceUrl/individuals/shortnino/${shortNino.nino}") recover {
+  def getByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
+    http.GET[TestIndividual](s"$serviceUrl/individuals/shortnino/${shortNino.nino}") recover {
       case _: NotFoundException => throw new TestUserNotFoundException
     }
   }

@@ -62,7 +62,7 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
 
   "find Individual by SHORTNINO" should {
     "return an openid individual and a http 200 (ok) when a test user exists for a given SHORTNINO" in {
-      when(individualsService.getByShortNino(refEq(ninoNoSuffix))(any[HeaderCarrier])).thenReturn(successful(individual))
+      when(individualsService.getIndividualByShortNino(refEq(ninoNoSuffix))(any[HeaderCarrier])).thenReturn(successful(individual))
 
       val result = invoke(GET, s"/pay-as-you-earn/individuals/${ninoNoSuffix.nino}")
 
@@ -99,7 +99,7 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return a 500 (Internal Server Error) when an error occurred" in {
-      when(individualsService.getByShortNino(refEq(ninoNoSuffix))(any[HeaderCarrier])).thenReturn(failed(new RuntimeException("test error")))
+      when(individualsService.getIndividualByShortNino(refEq(ninoNoSuffix))(any[HeaderCarrier])).thenReturn(failed(new RuntimeException("test error")))
 
       val result = invoke(GET, s"/pay-as-you-earn/individuals/${ninoNoSuffix.nino}")
 
@@ -109,7 +109,7 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
 
   "getCidPerson by NINO" should {
     "return a sequence containing the cidPerson a test user exists for a given NINO" in {
-      when(individualsService.getByNino(refEq(nino))(any[HeaderCarrier])).thenReturn(successful(cidPerson))
+      when(individualsService.getCidPersonByNino(refEq(nino))(any[HeaderCarrier])).thenReturn(successful(cidPerson))
 
       val result = invoke(GET, s"/matching/find?nino=${nino.nino}")
 
@@ -138,7 +138,7 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return a 500 (Internal Server Error) when an error occurred" in {
-      when(individualsService.getByNino(refEq(nino))(any[HeaderCarrier])).thenReturn(failed(new RuntimeException("test error")))
+      when(individualsService.getCidPersonByNino(refEq(nino))(any[HeaderCarrier])).thenReturn(failed(new RuntimeException("test error")))
 
       val result = invoke(GET, s"/matching/find?nino=${nino.nino}")
 

@@ -33,7 +33,7 @@ class ApiPlatformTestUserConnectorSpec extends UnitSpec with BeforeAndAfterEach 
   val stubHost = "localhost"
   val wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
   val nino = Nino("AB123456A")
-  val testUser = TestUser(
+  val testUser = TestIndividual(
     "945350439195",
     "bLohysg8utsa",
     Some(SaUtr("12345")),

@@ -32,11 +32,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class IndividualsController @Inject()(individualsService: IndividualsService) extends BaseController {
 
   def findIndividual(ninoNoSuffix: NinoNoSuffix): Action[AnyContent] = Action.async { implicit request =>
-    individualsService.getByShortNino(ninoNoSuffix) map (individual => Ok(toJson(OpenidIndividual(individual)))) recover recovery
+    individualsService.getIndividualByShortNino(ninoNoSuffix) map (individual => Ok(toJson(OpenidIndividual(individual)))) recover recovery
   }
 
   def findCidPerson(nino: Nino): Action[AnyContent] = Action.async { implicit request =>
-    individualsService.getByNino(nino) map (cidPerson => Ok(toJson(Seq(cidPerson)))) recover recovery
+    individualsService.getCidPersonByNino(nino) map (cidPerson => Ok(toJson(Seq(cidPerson)))) recover recovery
   }
 
   private val recovery: PartialFunction[Throwable, Result] = {

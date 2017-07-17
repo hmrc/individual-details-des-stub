@@ -32,7 +32,7 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
   private val nino = Nino("AB123456A")
   private val saUtr = SaUtr("12345")
 
-  val testUser = TestUser(
+  val testUser = TestIndividual(
     "945350439195",
     "bLohysg8utsa",
     Some(saUtr),
@@ -63,13 +63,13 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
 
     "return a Cid Person for a matched NINO" in new Setup {
       when(mockTestUserConnector.getByNino(nino)(hc)).thenReturn(testUser)
-      val result = await(individualsService.getByNino(nino))
+      val result = await(individualsService.getCidPersonByNino(nino))
       result shouldBe cidPerson
     }
 
     "propagate a test user not found exception" in new Setup {
       when(mockTestUserConnector.getByNino(nino)(hc)).thenThrow(new TestUserNotFoundException)
-      intercept[TestUserNotFoundException](await(individualsService.getByNino(nino)))
+      intercept[TestUserNotFoundException](await(individualsService.getCidPersonByNino(nino)))
     }
   }
 
@@ -77,13 +77,13 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
 
     "return an Individual for a matched SHORTNINO" in new Setup {
       when(mockTestUserConnector.getByShortNino(ninoNoSuffix)(hc)).thenReturn(testUser)
-      val result = await(individualsService.getByShortNino(ninoNoSuffix))
+      val result = await(individualsService.getIndividualByShortNino(ninoNoSuffix))
       result shouldBe individual
     }
 
     "propagate a test user not found exception" in new Setup {
       when(mockTestUserConnector.getByShortNino(ninoNoSuffix)(hc)).thenThrow(new TestUserNotFoundException)
-      intercept[TestUserNotFoundException](await(individualsService.getByShortNino(ninoNoSuffix)))
+      intercept[TestUserNotFoundException](await(individualsService.getIndividualByShortNino(ninoNoSuffix)))
     }
   }
 }

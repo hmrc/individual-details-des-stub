@@ -24,7 +24,6 @@ case class TestUserAddress(line1: String, line2: String)
 case class TestUserIndividualDetails(firstName: String, lastName: String, dateOfBirth: LocalDate, address: TestUserAddress)
 
 case class TestIndividual(userId: String,
-                          password: String,
                           saUtr: Option[SaUtr] = None,
                           nino: Option[Nino] = None,
                           individualDetails: TestUserIndividualDetails)

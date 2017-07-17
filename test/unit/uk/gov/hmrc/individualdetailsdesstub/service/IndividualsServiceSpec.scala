@@ -34,7 +34,6 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
 
   val testUser = TestIndividual(
     "945350439195",
-    "bLohysg8utsa",
     Some(saUtr),
     Some(nino),
     TestUserIndividualDetails("Adrian", "Adams", LocalDate.parse("1970-03-21"), TestUserAddress("1 Abbey Road", "Aberdeen")))

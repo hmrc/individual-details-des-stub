@@ -35,7 +35,6 @@ class ApiPlatformTestUserConnectorSpec extends UnitSpec with BeforeAndAfterEach 
   val nino = Nino("AB123456A")
   val testUser = TestIndividual(
     "945350439195",
-    "bLohysg8utsa",
     Some(SaUtr("12345")),
     Some(nino),
     TestUserIndividualDetails("Adrian", "Adams", LocalDate.parse("1970-03-21"), TestUserAddress("1 Abbey Road", "Aberdeen")))

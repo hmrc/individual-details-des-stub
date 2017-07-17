@@ -17,75 +17,73 @@
 package unit.uk.gov.hmrc.individualdetailsdesstub.service
 
 import org.joda.time.LocalDate
-import org.mockito.Matchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.when
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.domain.{Nino, TaxIds}
+import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIds}
+import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnector
 import uk.gov.hmrc.individualdetailsdesstub.domain._
-import uk.gov.hmrc.individualdetailsdesstub.repository.IndividualsRepository
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-
-import scala.concurrent.Future
 
 class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
 
-  private val individualsRepository = mock[IndividualsRepository]
-  private val individualsService = new IndividualsService(individualsRepository)
   private val ninoNoSuffix = NinoNoSuffix("AB123456")
   private val nino = Nino("AB123456A")
-  private val individual = Individual(
+  private val saUtr = SaUtr("12345")
+
+  val testUser = TestIndividual(
+    "945350439195",
+    "bLohysg8utsa",
+    Some(saUtr),
+    Some(nino),
+    TestUserIndividualDetails("Adrian", "Adams", LocalDate.parse("1970-03-21"), TestUserAddress("1 Abbey Road", "Aberdeen")))
+
+  val individual = Individual(
     ninoNoSuffix = ninoNoSuffix.nino,
-    name = IndividualName("Amanda", "Jones"),
-    dateOfBirth = LocalDate.parse("1970-01-04"),
-    address = IndividualAddress("6 Oxford Street", "London")
+    name = IndividualName(testUser.individualDetails.firstName, testUser.individualDetails.lastName),
+    dateOfBirth = testUser.individualDetails.dateOfBirth,
+    address = IndividualAddress(testUser.individualDetails.address.line1, testUser.individualDetails.address.line2)
   )
-  private val cidPerson = CidPerson(CidNames(CidName("Amanda", "Jones")), TaxIds(nino), "04011970")
 
-  "Individuals service create function" should {
+  val cidPerson = CidPerson(
+    CidNames(CidName(testUser.individualDetails.firstName, testUser.individualDetails.lastName)),
+    TaxIds(nino, saUtr),
+    testUser.individualDetails.dateOfBirth.toString("ddMMyyyy"))
 
-    "delegate to repository create function" in {
-      when(individualsRepository.create(any[Individual])).thenReturn(individual)
-      await(individualsService.create(ninoNoSuffix))
-      verify(individualsRepository).create(any[Individual])
-    }
+  trait Setup {
+    implicit val hc = HeaderCarrier()
 
-  }
-
-  "Individuals service read function" should {
-
-    "delegate to repository read function" in {
-      when(individualsRepository.read(ninoNoSuffix)).thenReturn(None)
-      await(individualsService.read(ninoNoSuffix))
-      verify(individualsRepository).read(ninoNoSuffix)
-    }
+    val mockTestUserConnector = mock[ApiPlatformTestUserConnector]
+    val individualsService = new IndividualsService(mockTestUserConnector)
 
   }
 
-  "getCidPerson" should {
+  "Individuals service get by NINO function" should {
 
-    "fetch the individual and convert it into a CidPerson" in {
-      when(individualsRepository.read(ninoNoSuffix)).thenReturn(Some(individual))
-
-      val result = await(individualsService.getCidPerson(nino))
-
-      result shouldBe Some(cidPerson)
+    "return a Cid Person for a matched NINO" in new Setup {
+      when(mockTestUserConnector.getByNino(nino)(hc)).thenReturn(testUser)
+      val result = await(individualsService.getCidPersonByNino(nino))
+      result shouldBe cidPerson
     }
 
-    "return None when there is no individual found for the nino" in {
-      when(individualsRepository.read(ninoNoSuffix)).thenReturn(None)
-
-      val result = await(individualsService.getCidPerson(nino))
-
-      result shouldBe None
+    "propagate a test user not found exception" in new Setup {
+      when(mockTestUserConnector.getByNino(nino)(hc)).thenThrow(new TestUserNotFoundException)
+      intercept[TestUserNotFoundException](await(individualsService.getCidPersonByNino(nino)))
     }
-
-    "fail when the repository fails" in {
-      when(individualsRepository.read(ninoNoSuffix)).thenReturn(Future.failed(new RuntimeException("test error")))
-
-      intercept[RuntimeException]{await(individualsService.getCidPerson(nino))}
-    }
-
   }
 
+  "Individuals service get by SHORTNINO function" should {
+
+    "return an Individual for a matched SHORTNINO" in new Setup {
+      when(mockTestUserConnector.getByShortNino(ninoNoSuffix)(hc)).thenReturn(testUser)
+      val result = await(individualsService.getIndividualByShortNino(ninoNoSuffix))
+      result shouldBe individual
+    }
+
+    "propagate a test user not found exception" in new Setup {
+      when(mockTestUserConnector.getByShortNino(ninoNoSuffix)(hc)).thenThrow(new TestUserNotFoundException)
+      intercept[TestUserNotFoundException](await(individualsService.getIndividualByShortNino(ninoNoSuffix)))
+    }
+  }
 }

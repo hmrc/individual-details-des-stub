@@ -17,8 +17,9 @@
 package unit.uk.gov.hmrc.individualdetailsdesstub.controller
 
 import org.joda.time.LocalDate
+import org.mockito.Matchers.{any, refEq}
 import org.mockito.Mockito.when
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status.OK
 import play.api.inject.bind
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
@@ -29,15 +30,15 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Nino, TaxIds}
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
-import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters._
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-import scala.concurrent.Future
-import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.Future._
 
 class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
   private val individualsService = mock[IndividualsService]
+
   override def bindModules: Seq[GuiceableModule] = Seq()
 
   override lazy val fakeApplication = new GuiceApplicationBuilder().configure("metrics.enabled" -> "false").configure("auditing.enabled" -> "false")
@@ -57,104 +58,87 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
 
   val cidPerson = CidPerson(CidNames(CidName("John", "Doe")), TaxIds(nino), "10011980")
 
-  "fetchOrCreateIndividual" should {
-    "return an openid individual and a http 200 (ok) when repository read is successful" in {
-      mockIndividualsServiceReadToReturn(ninoNoSuffix, successful(Some(individual)))
+  implicit val hc = HeaderCarrier()
 
-      val result = invoke(GET, "/pay-as-you-earn/individuals/AB123456")
+  "find Individual by SHORTNINO" should {
+    "return an openid individual and a http 200 (ok) when a test user exists for a given SHORTNINO" in {
+      when(individualsService.getIndividualByShortNino(refEq(ninoNoSuffix))(any[HeaderCarrier])).thenReturn(successful(individual))
+
+      val result = invoke(GET, s"/pay-as-you-earn/individuals/${ninoNoSuffix.nino}")
 
       status(result) shouldBe OK
       jsonBodyOf(result) shouldBe Json.parse(
         s"""
-          |{
-          |  "nino": "${ninoNoSuffix.value}",
-          |  "names": {
-          |    "1": {
-          |      "firstForenameOrInitial": "${individual.name.firstForenameOrInitial}",
-          |      "secondForenameOrInitial": "${individual.name.secondForenameOrInitial.get}",
-          |      "surname": "${individual.name.surname}"
-          |    }
-          |  },
-          |  "dateOfBirth": "${individual.dateOfBirth.toString("yyyy-MM-dd")}",
-          |  "addresses": {
-          |    "1": {
-          |      "line1": "${individual.address.line1}",
-          |      "line2": "${individual.address.line2}",
-          |      "line3": "${individual.address.line3.get}",
-          |      "line4": "${individual.address.line4.get}",
-          |      "postcode": "${individual.address.postcode.get}",
-          |      "countryCode": ${individual.address.countryCode.get}
-          |    }
-          |  }
-          |}
+           |{
+           |  "nino": "${ninoNoSuffix.value}",
+           |  "names": {
+           |    "1": {
+           |      "firstForenameOrInitial": "${individual.name.firstForenameOrInitial}",
+           |      "secondForenameOrInitial": "${individual.name.secondForenameOrInitial.get}",
+           |      "surname": "${individual.name.surname}"
+           |    }
+           |  },
+           |  "dateOfBirth": "${individual.dateOfBirth.toString("yyyy-MM-dd")}",
+           |  "addresses": {
+           |    "1": {
+           |      "line1": "${individual.address.line1}",
+           |      "line2": "${individual.address.line2}",
+           |      "line3": "${individual.address.line3.get}",
+           |      "line4": "${individual.address.line4.get}",
+           |      "postcode": "${individual.address.postcode.get}",
+           |      "countryCode": ${individual.address.countryCode.get}
+           |    }
+           |  }
+           |}
         """.stripMargin)
     }
 
-    "return an openid individual and a http 200 (ok) when repository read is unsuccessful and repository create is successful" in {
-      mockIndividualsServiceReadToReturn(ninoNoSuffix, successful(None))
-      mockIndividualsServiceCreateToReturn(ninoNoSuffix, successful(individual))
-
-      val result = invoke(GET, "/pay-as-you-earn/individuals/AB123456")
-
-      status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe Json.toJson(OpenidIndividual(individual))
-    }
-
-    "return a http 400 (Bad Request) when the nino is invalid" in {
-      mockIndividualsServiceReadToReturn(ninoNoSuffix, successful(None))
-      mockIndividualsServiceCreateToReturn(ninoNoSuffix, successful(individual))
-
+    "return a http 400 (Bad Request) when the SHORTNINO is invalid" in {
       val result = invoke(GET, "/pay-as-you-earn/individuals/badnino")
-
       status(result) shouldBe BAD_REQUEST
     }
 
-    "return a http 500 (internal server error) when repository read and create are unsuccessful" in {
-      mockIndividualsServiceReadToReturn(ninoNoSuffix, successful(None))
-      mockIndividualsServiceCreateToReturn(ninoNoSuffix, failed(new RuntimeException("simulated service exception")))
+    "return a 500 (Internal Server Error) when an error occurred" in {
+      when(individualsService.getIndividualByShortNino(refEq(ninoNoSuffix))(any[HeaderCarrier])).thenReturn(failed(new RuntimeException("test error")))
 
-      val result = invoke(GET, "/pay-as-you-earn/individuals/AB123456")
+      val result = invoke(GET, s"/pay-as-you-earn/individuals/${ninoNoSuffix.nino}")
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
   }
 
-  "getCidPerson" should {
-    "return a sequence containing the cidPerson when the repository contains the individual" in {
-      mockIndividualsServiceReadToReturn(nino, successful(Some(cidPerson)))
+  "getCidPerson by NINO" should {
+    "return a sequence containing the cidPerson a test user exists for a given NINO" in {
+      when(individualsService.getCidPersonByNino(refEq(nino))(any[HeaderCarrier])).thenReturn(successful(cidPerson))
 
       val result = invoke(GET, s"/matching/find?nino=${nino.nino}")
 
       status(result) shouldBe OK
       jsonBodyOf(result) shouldBe Json.parse(
         s"""
-          |[{
-          |   "ids": {
-          |     "nino": "${cidPerson.ids.nino.get}"
-          |   },
-          |   "name": {
-          |     "current": {
-          |       "firstName": "${cidPerson.name.current.firstName}",
-          |       "lastName": "${cidPerson.name.current.lastName}"
-          |     }
-          |   },
-          |   "dateOfBirth": "${cidPerson.dateOfBirth}"
-          |}]
+           |[{
+           |   "ids": {
+           |     "nino": "${cidPerson.ids.nino.get}"
+           |   },
+           |   "name": {
+           |     "current": {
+           |       "firstName": "${cidPerson.name.current.firstName}",
+           |       "lastName": "${cidPerson.name.current.lastName}"
+           |     }
+           |   },
+           |   "dateOfBirth": "${cidPerson.dateOfBirth}"
+           |}]
         """.stripMargin
       )
     }
 
-    "return a 404 (Not Found) when the repository does not contain the individual" in {
-      mockIndividualsServiceReadToReturn(nino, successful(None))
-
-      val result = invoke(GET, s"/matching/find?nino=${nino.nino}")
-
-      status(result) shouldBe NOT_FOUND
-      jsonBodyOf(result) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
+    "return a http 400 (Bad Request) when the NINO is invalid" in {
+      val result = invoke(GET, "/matching/find?nino=badnino")
+      status(result) shouldBe BAD_REQUEST
     }
 
     "return a 500 (Internal Server Error) when an error occurred" in {
-      mockIndividualsServiceReadToReturn(nino, failed(new RuntimeException("test error")))
+      when(individualsService.getCidPersonByNino(refEq(nino))(any[HeaderCarrier])).thenReturn(failed(new RuntimeException("test error")))
 
       val result = invoke(GET, s"/matching/find?nino=${nino.nino}")
 
@@ -164,14 +148,4 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
 
   private def invoke(httpVerb: String, uriPath: String): Result =
     await(route(fakeApplication, FakeRequest(GET, uriPath)).get)
-
-  def mockIndividualsServiceReadToReturn(ninoNoSuffix: NinoNoSuffix, eventualMaybeIndividual: Future[Option[Individual]]) =
-    when(individualsService.read(ninoNoSuffix)).thenReturn(eventualMaybeIndividual)
-
-  def mockIndividualsServiceCreateToReturn(ninoNoSuffix: NinoNoSuffix, eventualIndividual: Future[Individual]) =
-    when(individualsService.create(ninoNoSuffix)).thenReturn(eventualIndividual)
-
-  def mockIndividualsServiceReadToReturn(nino: Nino, eventualMaybeCidPerson: Future[Option[CidPerson]]) =
-    when(individualsService.getCidPerson(nino)).thenReturn(eventualMaybeCidPerson)
-
 }

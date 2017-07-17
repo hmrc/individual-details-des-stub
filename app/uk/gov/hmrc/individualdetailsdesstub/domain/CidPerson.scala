@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.individualdetailsdesstub.domain
 
-import org.joda.time.LocalDate
-import uk.gov.hmrc.domain.{Nino, TaxIds}
+import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
+import uk.gov.hmrc.domain._
 
 case class CidName(firstName: String, lastName: String)
 
@@ -26,9 +26,14 @@ case class CidNames(current: CidName)
 case class CidPerson(name: CidNames, ids: TaxIds, dateOfBirth: String)
 
 object CidPerson {
-  def apply(nino: Nino, individual: Individual): CidPerson = CidPerson(
-    CidNames(CidName(individual.name.firstForenameOrInitial, individual.name.surname)),
-    TaxIds(nino),
-    individual.dateOfBirth.toString("ddMMyyyy")
+
+  def apply(nino: Nino, testUser: TestIndividual): CidPerson = {
+    val ids: Seq[TaxIdWithName] = Seq(testUser.nino, testUser.saUtr) flatten
+
+    CidPerson(
+      CidNames(CidName(testUser.individualDetails.firstName, testUser.individualDetails.lastName)),
+      TaxIds(ids.toSet),
+      testUser.individualDetails.dateOfBirth.toString("ddMMyyyy")
     )
+  }
 }

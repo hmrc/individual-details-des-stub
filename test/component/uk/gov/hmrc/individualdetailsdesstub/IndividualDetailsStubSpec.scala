@@ -16,96 +16,51 @@
 
 package component.uk.gov.hmrc.individualdetailsdesstub
 
-import org.scalatest.{BeforeAndAfterEach, Matchers, GivenWhenThen, FeatureSpec}
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import component.uk.gov.hmrc.individualdetailsdesstub.stubs.{ApiPlatformTestUserStub, BaseSpec}
+import org.joda.time.LocalDate
 import play.api.http.Status
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.individualdetailsdesstub.domain.{CidPerson, Individual, OpenidIndividual, NinoNoSuffix}
-import uk.gov.hmrc.individualdetailsdesstub.repository.IndividualsRepository
+import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIds}
+import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters._
-import scala.concurrent.ExecutionContext.Implicits.global
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
 import scalaj.http.Http
 
-class IndividualDetailsStubSpec extends FeatureSpec with Matchers with GivenWhenThen with GuiceOneServerPerSuite with BeforeAndAfterEach {
-  override lazy val port = 19000
-  override lazy val app = new GuiceApplicationBuilder()
-    .configure("mongodb.uri" -> "mongodb://localhost:27017/individual-details-des-stub-it")
-    .build()
-  val timeout = 10.seconds
-  val repository = app.injector.instanceOf[IndividualsRepository]
+class IndividualDetailsStubSpec extends BaseSpec {
 
-  val serviceUrl = s"http://localhost:$port"
   val nino = Nino("AB123456A")
   val ninoNoSuffix = NinoNoSuffix(nino)
+  val saUtr = SaUtr("12345")
 
-  override def beforeEach = {
-    Await.result(repository.drop, timeout)
-    Await.result(repository.ensureIndexes, timeout)
-  }
-  override def afterEach = {
-    Await.result(repository.drop, timeout)
-  }
+  feature("Retrieval of user details for openid-connect") {
 
-  feature("Creation and retrieval of user details for openid-connect") {
+    scenario("Retrieve an individual by SHORTNINO") {
 
-    scenario("Create individual on first fetch") {
+      val individual = Individual(
+        ninoNoSuffix = ninoNoSuffix.nino,
+        name = IndividualName("Adrian", "Adams"),
+        dateOfBirth = LocalDate.parse("1970-03-21"),
+        address = IndividualAddress("1 Abbey Road", "Aberdeen")
+      )
 
-      Given("The individual does not exist in the repository")
-      Await.result(repository.read(ninoNoSuffix), timeout) shouldBe (None)
+      Given("An individual exists for a given SHORTNINO")
+      ApiPlatformTestUserStub.getByShortNinoReturnsTestUserDetails(nino, individual)
 
-      When("I retrieve the individual by its NINO")
+      When("I retrieve the individual by its SHORTNINO")
       val result = Http(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").asString
       result.code shouldBe Status.OK
 
-      Then("A generated individual is stored in mongo")
-      val storedIndividual = Await.result(repository.read(ninoNoSuffix), timeout)
-      storedIndividual shouldNot be (None)
-
-      And("The individual is returned in an openid connect DES format")
-      Json.parse(result.body) shouldBe Json.toJson(OpenidIndividual(storedIndividual.get))
+      Then("The individual is returned in an openid connect DES format")
+      Json.parse(result.body) shouldBe Json.toJson(OpenidIndividual(individual))
     }
 
-    scenario("Retrieve generated individual") {
+    scenario("Retrieve an individual with a non-existing SHORTNINO") {
 
-      Given("The individual has already been fetched before")
-      val firstIndividualFetchResponse = Http(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").asString
+      Given("A test individual does not exist for a given SHORTNINO")
+      ApiPlatformTestUserStub.getByShortNinoReturnsNoTestUser(ninoNoSuffix)
 
-      When("I retrieve the individual by its NINO")
-      val secondIndividualFetchResponse = Http(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").asString
-
-      Then("The same individual is returned")
-      Json.parse(firstIndividualFetchResponse.body) shouldBe Json.parse(secondIndividualFetchResponse.body)
-    }
-
-  }
-
-  feature("Matching individual by NINO for citizen-details") {
-
-    scenario("Look up a valid NINO") {
-
-      Given("An individual in the database")
-      val individual = createIndividualFor(ninoNoSuffix)
-
-      When("I try to match the individual by its NINO")
-      val result = Http(s"$serviceUrl/matching/find?nino=$nino").asString
-
-      Then("The individual is returned")
-      result.code shouldBe Status.OK
-      Json.parse(result.body) shouldBe Json.toJson(Seq(CidPerson(nino, individual)))
-    }
-
-    scenario("Look up an invalid NINO") {
-
-      Given("The individual does not exist in the repository")
-      Await.result(repository.read(ninoNoSuffix), timeout) shouldBe (None)
-
-      When("I try to match the individual by its NINO")
-      val result = Http(s"$serviceUrl/matching/find?nino=$nino").asString
+      When("I try to match the individual by its SHORTNINO")
+      val result = Http(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").asString
 
       Then("A 404 (Not Found) is returned")
       result.code shouldBe Status.NOT_FOUND
@@ -113,9 +68,34 @@ class IndividualDetailsStubSpec extends FeatureSpec with Matchers with GivenWhen
     }
   }
 
-  private def createIndividualFor(ninoNoSuffix: NinoNoSuffix) = {
-    val individual = Individual(ninoNoSuffix)
-    Await.result(repository.create(individual), timeout)
-    individual
+  feature("Retrieval of user details for citizen-details matching") {
+
+    scenario("Retrieve an individual by NINO") {
+
+      val cidPerson = CidPerson(CidNames(CidName("Adrian", "Adams")), TaxIds(nino, saUtr), "21031970")
+
+      Given("A test individual exists for a given NINO")
+      ApiPlatformTestUserStub.getByNinoReturnsTestUserDetails(nino, cidPerson)
+
+      When("I retrieve the individual by its NINO")
+      val result = Http(s"$serviceUrl/matching/find?nino=${nino.nino}").asString
+      result.code shouldBe Status.OK
+
+      Then("The individual is returned in an citizen-details format")
+      Json.parse(result.body) shouldBe Json.toJson(Seq(cidPerson))
+    }
+
+    scenario("Retrieve an individual with a non existing NINO") {
+
+      Given("A test individual does not exist for a given NINO")
+      ApiPlatformTestUserStub.getByNinoReturnsNoTestUser(nino)
+
+      When("I try to match the individual by its NINO")
+      val result = Http(s"$serviceUrl/matching/find?nino=${nino.nino}").asString
+
+      Then("A 404 (Not Found) is returned")
+      result.code shouldBe Status.NOT_FOUND
+      Json.parse(result.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
+    }
   }
 }

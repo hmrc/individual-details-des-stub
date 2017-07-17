@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.individualdetailsdesstub.repository
+package uk.gov.hmrc.individualdetailsdesstub.domain
 
-import javax.inject.{Inject, Singleton}
+import org.joda.time.LocalDate
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 
-import play.modules.reactivemongo.ReactiveMongoComponent
+case class TestUserAddress(line1: String, line2: String)
 
-@Singleton
-class MongoConnectionProvider @Inject()(reactiveMongoComponent: ReactiveMongoComponent) {
-  lazy val mongoDatabase = reactiveMongoComponent.mongoConnector.db
-}
+case class TestUserIndividualDetails(firstName: String, lastName: String, dateOfBirth: LocalDate, address: TestUserAddress)
+
+case class TestIndividual(userId: String,
+                          password: String,
+                          saUtr: Option[SaUtr] = None,
+                          nino: Option[Nino] = None,
+                          individualDetails: TestUserIndividualDetails)

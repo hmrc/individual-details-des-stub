@@ -19,34 +19,28 @@ package uk.gov.hmrc.individualdetailsdesstub.controller
 import javax.inject.{Inject, Singleton}
 
 import play.api.libs.json.Json.toJson
-import play.api.mvc.{Result, Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, Result}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.individualdetailsdesstub.domain.{ErrorNotFound, OpenidIndividual, ErrorInternalServer, NinoNoSuffix}
+import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
 import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters._
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future.successful
 
 @Singleton
 class IndividualsController @Inject()(individualsService: IndividualsService) extends BaseController {
 
-  def fetchOrCreateIndividual(ninoNoSuffix: NinoNoSuffix): Action[AnyContent] = Action.async {
-    individualsService.read(ninoNoSuffix) flatMap {
-      case Some(individual) => successful(individual)
-      case None => individualsService.create(ninoNoSuffix)
-    } map (individual => Ok(toJson(OpenidIndividual(individual)))) recover recovery
+  def findIndividual(ninoNoSuffix: NinoNoSuffix): Action[AnyContent] = Action.async { implicit request =>
+    individualsService.getIndividualByShortNino(ninoNoSuffix) map (individual => Ok(toJson(OpenidIndividual(individual)))) recover recovery
   }
 
-  def findCidPerson(nino: Nino): Action[AnyContent] = Action.async {
-    individualsService.getCidPerson(nino) map {
-      case Some(cidPerson) => Ok(toJson(Seq(cidPerson)))
-      case None => ErrorNotFound.toHttpResponse
-    } recover recovery
+  def findCidPerson(nino: Nino): Action[AnyContent] = Action.async { implicit request =>
+    individualsService.getCidPersonByNino(nino) map (cidPerson => Ok(toJson(Seq(cidPerson)))) recover recovery
   }
 
   private val recovery: PartialFunction[Throwable, Result] = {
+    case e: TestUserNotFoundException => ErrorNotFound(e.getMessage).toHttpResponse
     case _ => ErrorInternalServer.toHttpResponse
   }
 }

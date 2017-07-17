@@ -18,6 +18,7 @@ package uk.gov.hmrc.individualdetailsdesstub.controller
 
 import javax.inject.{Inject, Singleton}
 
+import play.api.Logger
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Action, AnyContent, Result}
 import uk.gov.hmrc.domain.Nino
@@ -41,6 +42,8 @@ class IndividualsController @Inject()(individualsService: IndividualsService) ex
 
   private val recovery: PartialFunction[Throwable, Result] = {
     case e: TestUserNotFoundException => ErrorNotFound(e.getMessage).toHttpResponse
-    case _ => ErrorInternalServer.toHttpResponse
+    case e: Throwable =>
+      Logger.error("An unexpected error occured", e)
+      ErrorInternalServer.toHttpResponse
   }
 }

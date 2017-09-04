@@ -68,6 +68,42 @@ class IndividualDetailsStubSpec extends BaseSpec {
     }
   }
 
+  feature("Retrieval of user details for openid-connect (2.0 endpoint)") {
+
+    scenario("Retrieve an individual by SHORTNINO") {
+
+      val individual = Individual(
+        ninoNoSuffix = ninoNoSuffix.nino,
+        name = IndividualName("Adrian", "Adams"),
+        dateOfBirth = LocalDate.parse("1970-03-21"),
+        address = IndividualAddress("1 Abbey Road", "Aberdeen")
+      )
+
+      Given("An individual exists for a given SHORTNINO")
+      ApiPlatformTestUserStub.getByShortNinoReturnsTestUserDetails(nino, individual)
+
+      When("I retrieve the individual by its SHORTNINO")
+      val result = Http(s"$serviceUrl/pay-as-you-earn/02.00.00/individuals/${ninoNoSuffix.nino}").asString
+      result.code shouldBe Status.OK
+
+      Then("The individual is returned in an openid connect DES format")
+      Json.parse(result.body) shouldBe Json.toJson(OpenidIndividual(individual))
+    }
+
+    scenario("Retrieve an individual with a non-existing SHORTNINO") {
+
+      Given("A test individual does not exist for a given SHORTNINO")
+      ApiPlatformTestUserStub.getByShortNinoReturnsNoTestUser(ninoNoSuffix)
+
+      When("I try to match the individual by its SHORTNINO")
+      val result = Http(s"$serviceUrl/pay-as-you-earn/02.00.00/individuals/${ninoNoSuffix.nino}").asString
+
+      Then("A 404 (Not Found) is returned")
+      result.code shouldBe Status.NOT_FOUND
+      Json.parse(result.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
+    }
+  }
+
   feature("Retrieval of user details for citizen-details matching") {
 
     scenario("Retrieve an individual by NINO") {

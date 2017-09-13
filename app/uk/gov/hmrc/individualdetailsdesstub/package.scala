@@ -17,7 +17,7 @@
 package uk.gov.hmrc.individualdetailsdesstub
 
 import play.api.mvc.QueryStringBindable
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.individualdetailsdesstub.domain.NinoNoSuffix
 import uk.gov.hmrc.play.binders.SimpleObjectBinder
 
@@ -34,5 +34,17 @@ package object Binders {
 
     def unbind(key: String, value: Nino): String = QueryStringBindable.bindableString.unbind(key, value.nino)
   }
+
+  implicit val saUtrQueryStringBinder = new QueryStringBindable[SaUtr] {
+    def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SaUtr]] = try {
+      params.get(key).flatMap(_.headOption).map(value => Right(SaUtr(value)))
+    } catch {
+      case e: Throwable => Some(Left(s"Cannot parse parameter '$key' with parameters '$params' as 'SA UTR'"))
+    }
+
+    def unbind(key: String, value: SaUtr): String = QueryStringBindable.bindableString.unbind(key, value.utr)
+  }
+
   implicit val ninoNoSuffixBinder = NinoNoSuffixBinder
+
 }

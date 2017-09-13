@@ -4,4 +4,4 @@ GET        /pay-as-you-earn/individuals/:ninoNoSuffix               @uk.gov.hmrc
 
 GET        /pay-as-you-earn/02.00.00/individuals/:ninoNoSuffix      @uk.gov.hmrc.individualdetailsdesstub.controller.IndividualsController.findIndividual(ninoNoSuffix: NinoNoSuffix)
 
-GET        /matching/find                                           @uk.gov.hmrc.individualdetailsdesstub.controller.IndividualsController.findCidPerson(nino: Nino)
+GET        /matching/find                                           @uk.gov.hmrc.individualdetailsdesstub.controller.IndividualsController.findCidPerson(nino: Option[Nino], saUtr : Option[SaUtr])

@@ -36,4 +36,14 @@ object CidPerson {
       testUser.individualDetails.dateOfBirth.toString("ddMMyyyy")
     )
   }
+
+  def apply(saUtr: SaUtr, testUser: TestIndividual): CidPerson = {
+    val ids: Seq[TaxIdWithName] = Seq(testUser.nino, testUser.saUtr) flatten
+
+    CidPerson(
+      CidNames(CidName(testUser.individualDetails.firstName, testUser.individualDetails.lastName)),
+      TaxIds(ids.toSet),
+      testUser.individualDetails.dateOfBirth.toString("ddMMyyyy")
+    )
+  }
 }

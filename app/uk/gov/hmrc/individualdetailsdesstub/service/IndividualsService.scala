@@ -18,7 +18,7 @@ package uk.gov.hmrc.individualdetailsdesstub.service
 
 import javax.inject.{Inject, Singleton}
 
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnector
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -31,6 +31,9 @@ class IndividualsService @Inject()(apiPlatformTestUserConnector: ApiPlatformTest
 
   def getIndividualByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[Individual] =
     apiPlatformTestUserConnector.getByShortNino(shortNino) map (Individual(shortNino, _))
+
+  def getCidPersonBySaUtr(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[CidPerson] =
+    apiPlatformTestUserConnector.getBySaUtr(saUtr) map (CidPerson(saUtr, _))
 
   def getCidPersonByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[CidPerson] = {
     apiPlatformTestUserConnector.getByNino(nino) map (CidPerson(nino, _))

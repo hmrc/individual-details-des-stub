@@ -21,10 +21,11 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Action, AnyContent, Result}
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
 import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters._
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -36,7 +37,19 @@ class IndividualsController @Inject()(individualsService: IndividualsService) ex
     individualsService.getIndividualByShortNino(ninoNoSuffix) map (individual => Ok(toJson(OpenidIndividual(individual)))) recover recovery
   }
 
-  def findCidPerson(nino: Nino): Action[AnyContent] = Action.async { implicit request =>
+  def findCidPerson(maybeNino: Option[Nino], maybeSaUtr: Option[SaUtr]): Action[AnyContent] = Action.async { implicit request =>
+    (maybeNino, maybeSaUtr) match {
+      case (Some(nino), _) => findCidPerson(nino)
+      case (_, Some(saUtr)) => findCidPerson(saUtr)
+      case (None, None) => throw new TestUserNotFoundException
+    }
+  }
+
+  private def findCidPerson(saUtr: SaUtr)(implicit hc: HeaderCarrier) = {
+    individualsService.getCidPersonBySaUtr(saUtr) map (cidPerson => Ok(toJson(Seq(cidPerson)))) recover recovery
+  }
+
+  private def findCidPerson(nino: Nino)(implicit hc: HeaderCarrier) = {
     individualsService.getCidPersonByNino(nino) map (cidPerson => Ok(toJson(Seq(cidPerson)))) recover recovery
   }
 

@@ -18,7 +18,7 @@ package uk.gov.hmrc.individualdetailsdesstub.connector
 
 import javax.inject.Singleton
 
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.individualdetailsdesstub.config.WSHttp
 import uk.gov.hmrc.individualdetailsdesstub.domain.{NinoNoSuffix, TestIndividual, TestUserNotFoundException}
 import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters.formatTestUser
@@ -33,15 +33,18 @@ class ApiPlatformTestUserConnector extends ServicesConfig {
   val serviceUrl = baseUrl("api-platform-test-user")
   val http: HttpGet = WSHttp
 
-  def getByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    http.GET[TestIndividual](s"$serviceUrl/individuals/nino/$nino") recover {
-      case _: NotFoundException => throw new TestUserNotFoundException
-    }
-  }
+  def getByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] =
+    getTestIndividual(s"$serviceUrl/individuals/nino/$nino")
 
-  def getByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[TestIndividual] = {
-    http.GET[TestIndividual](s"$serviceUrl/individuals/shortnino/${shortNino.nino}") recover {
+  def getByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[TestIndividual] =
+    getTestIndividual(s"$serviceUrl/individuals/shortnino/${shortNino.nino}")
+
+  def getBySaUtr(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[TestIndividual] =
+    getTestIndividual(s"$serviceUrl/individuals/sautr/${saUtr.utr}")
+
+  private def getTestIndividual(url: String)(implicit hc: HeaderCarrier) =
+    http.GET[TestIndividual](url) recover {
       case _: NotFoundException => throw new TestUserNotFoundException
     }
-  }
+
 }

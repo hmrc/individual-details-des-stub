@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import org.joda.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
+import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnector
 import uk.gov.hmrc.individualdetailsdesstub.domain._
@@ -60,16 +61,14 @@ class ApiPlatformTestUserConnectorSpec extends UnitSpec with BeforeAndAfterEach 
 
     "retrieve a test user for a valid NINO" in new Setup {
       stubFor(get(urlEqualTo(s"/individuals/nino/${nino.nino}")).
-        willReturn(aResponse().withStatus(200).withBody(responsePayload)))
+        willReturn(aResponse().withStatus(OK).withBody(responsePayload)))
 
-      val result = await(underTest.getByNino(nino))
-
-      result shouldBe testUser
+      await(underTest.getByNino(nino)) shouldBe testUser
     }
 
     "throw test user not found exception if test user cannot be found" in new Setup {
       stubFor(get(urlEqualTo(s"/individuals/nino/${nino.nino}")).
-        willReturn(aResponse().withStatus(404)))
+        willReturn(aResponse().withStatus(NOT_FOUND)))
 
       intercept[TestUserNotFoundException](await(underTest.getByNino(nino)))
     }
@@ -81,35 +80,52 @@ class ApiPlatformTestUserConnectorSpec extends UnitSpec with BeforeAndAfterEach 
 
     "retrieve a test user for a valid short NINO" in new Setup {
       stubFor(get(urlEqualTo(s"/individuals/shortnino/${shortNino.nino}")).
-        willReturn(aResponse().withStatus(200).withBody(responsePayload)))
+        willReturn(aResponse().withStatus(OK).withBody(responsePayload)))
 
-      val result = await(underTest.getByShortNino(shortNino))
-
-      result shouldBe testUser
+      await(underTest.getByShortNino(shortNino)) shouldBe testUser
     }
 
     "throw test user not found exception if test user cannot be found" in new Setup {
       stubFor(get(urlEqualTo(s"/individuals/shortnino/${shortNino.nino}")).
-        willReturn(aResponse().withStatus(404)))
+        willReturn(aResponse().withStatus(NOT_FOUND)))
 
       intercept[TestUserNotFoundException](await(underTest.getByShortNino(shortNino)))
     }
   }
 
+  "get by sa utr" should {
+
+    val saUtr = SaUtr("1234567890")
+
+    "retrieve a test user for a valid SA UTR" in new Setup {
+      stubFor(get(urlEqualTo(s"/individuals/sautr/${saUtr.utr}")).
+        willReturn(aResponse().withStatus(OK).withBody(responsePayload)))
+
+      await(underTest.getBySaUtr(saUtr)) shouldBe testUser
+    }
+
+    "throw test user not found exception if test user cannot be found" in new Setup {
+      stubFor(get(urlEqualTo(s"/individuals/sautr/${saUtr.utr}")).
+        willReturn(aResponse().withStatus(NOT_FOUND)))
+
+      intercept[TestUserNotFoundException](await(underTest.getBySaUtr(saUtr)))
+    }
+  }
+
   private val responsePayload =
     s"""{
-       |  "userId": "945350439195",
-       |  "password": "bLohysg8utsa",
-       |  "saUtr": "12345",
-       |  "nino": "AB123456A",
-       |  "individualDetails": {
-       |    "firstName": "Adrian",
-       |    "lastName": "Adams",
-       |    "dateOfBirth": "1970-03-21",
-       |    "address": {
-       |      "line1": "1 Abbey Road",
-       |      "line2": "Aberdeen"
-       |    }
-       |  }
-       |}""".stripMargin.replaceAll("\n", "")
+         "userId": "945350439195",
+         "password": "bLohysg8utsa",
+         "saUtr": "12345",
+         "nino": "AB123456A",
+         "individualDetails": {
+           "firstName": "Adrian",
+           "lastName": "Adams",
+           "dateOfBirth": "1970-03-21",
+           "address": {
+             "line1": "1 Abbey Road",
+             "line2": "Aberdeen"
+           }
+         }
+       }"""
 }

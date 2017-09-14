@@ -85,4 +85,19 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
       intercept[TestUserNotFoundException](await(individualsService.getIndividualByShortNino(ninoNoSuffix)))
     }
   }
+
+  "Individuals service get by SA UTR function" should {
+
+    "return a Cid Person for a matched SA UTR" in new Setup {
+      when(mockTestUserConnector.getBySaUtr(saUtr)(hc)).thenReturn(testUser)
+      val result = await(individualsService.getCidPersonBySaUtr(saUtr))
+      result shouldBe cidPerson
+    }
+
+    "propagate a test user not found exception" in new Setup {
+      when(mockTestUserConnector.getBySaUtr(saUtr)(hc)).thenThrow(new TestUserNotFoundException)
+      intercept[TestUserNotFoundException](await(individualsService.getCidPersonBySaUtr(saUtr)))
+    }
+  }
+
 }

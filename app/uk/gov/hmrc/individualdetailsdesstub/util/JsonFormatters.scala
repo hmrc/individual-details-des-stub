@@ -19,7 +19,7 @@ package uk.gov.hmrc.individualdetailsdesstub.util
 import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, JsValue, Json, Writes}
-import uk.gov.hmrc.domain.TaxIds
+import uk.gov.hmrc.domain.{SaUtr, TaxIds}
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 
 object JsonFormatters {

@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlPathE
 import org.joda.time.LocalDate._
 import org.joda.time.format.DateTimeFormat
 import play.api.http.Status
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.individualdetailsdesstub.domain.{CidPerson, Individual, NinoNoSuffix}
 
 object ApiPlatformTestUserStub extends MockHost(22001) {
@@ -30,24 +30,50 @@ object ApiPlatformTestUserStub extends MockHost(22001) {
       .willReturn(aResponse().withStatus(Status.OK)
         .withBody(
           s"""{
-             |  "userId": "945350439195",
-             |  "password": "bLohysg8utsa",
-             |  "saUtr": "12345",
-             |  "nino": "$nino",
-             |  "individualDetails": {
-             |    "firstName": "${cidPerson.name.current.firstName}",
-             |    "lastName": "${cidPerson.name.current.lastName}",
-             |    "dateOfBirth": "${parse(cidPerson.dateOfBirth, DateTimeFormat.forPattern("ddMMyyyy")).toString("yyyy-MM-dd")}",
-             |    "address": {
-             |      "line1": "1 Abbey Road",
-             |      "line2": "Aberdeen"
-             |    }
-             |  }
-             |}""".stripMargin.replaceAll("\n", ""))))
+               "userId": "945350439195",
+               "password": "bLohysg8utsa",
+               "saUtr": "12345",
+               "nino": "$nino",
+               "individualDetails": {
+                 "firstName": "${cidPerson.name.current.firstName}",
+                 "lastName": "${cidPerson.name.current.lastName}",
+                 "dateOfBirth": "${parse(cidPerson.dateOfBirth, DateTimeFormat.forPattern("ddMMyyyy")).toString("yyyy-MM-dd")}",
+                 "address": {
+                   "line1": "1 Abbey Road",
+                   "line2": "Aberdeen"
+                 }
+               }
+             }""")))
   }
 
   def getByNinoReturnsNoTestUser(nino: Nino) = {
     mock.register(get(urlPathEqualTo(s"/individuals/nino/$nino"))
+      .willReturn(aResponse().withStatus(Status.NOT_FOUND)))
+  }
+
+  def getBySaUtrReturnsTestUserDetails(saUtr: SaUtr, cidPerson: CidPerson) = {
+    mock.register(get(urlPathEqualTo(s"/individuals/sautr/$saUtr"))
+      .willReturn(aResponse().withStatus(Status.OK)
+        .withBody(
+          s"""{
+               "userId": "945350439195",
+               "password": "bLohysg8utsa",
+               "saUtr": "${saUtr.utr}",
+               "nino": "AB123456A",
+               "individualDetails": {
+                 "firstName": "${cidPerson.name.current.firstName}",
+                 "lastName": "${cidPerson.name.current.lastName}",
+                 "dateOfBirth": "${parse(cidPerson.dateOfBirth, DateTimeFormat.forPattern("ddMMyyyy")).toString("yyyy-MM-dd")}",
+                 "address": {
+                   "line1": "1 Abbey Road",
+                   "line2": "Aberdeen"
+                 }
+               }
+             }""")))
+  }
+
+  def getBySaUtrReturnsNoTestUser(saUtr: SaUtr) = {
+    mock.register(get(urlPathEqualTo(s"/individuals/sautr/$saUtr"))
       .willReturn(aResponse().withStatus(Status.NOT_FOUND)))
   }
 
@@ -56,20 +82,20 @@ object ApiPlatformTestUserStub extends MockHost(22001) {
       .willReturn(aResponse().withStatus(Status.OK)
         .withBody(
           s"""{
-             |  "userId": "945350439195",
-             |  "password": "bLohysg8utsa",
-             |  "saUtr": "12345",
-             |  "nino": "$nino",
-             |  "individualDetails": {
-             |    "firstName": "${individual.name.firstForenameOrInitial}",
-             |    "lastName": "${individual.name.surname}",
-             |    "dateOfBirth": "${individual.dateOfBirth.toString("yyyy-MM-dd")}",
-             |    "address": {
-             |      "line1": "${individual.address.line1}",
-             |      "line2": "${individual.address.line2}"
-             |    }
-             |  }
-             |}""".stripMargin.replaceAll("\n", ""))))
+               "userId": "945350439195",
+               "password": "bLohysg8utsa",
+               "saUtr": "12345",
+               "nino": "$nino",
+               "individualDetails": {
+                 "firstName": "${individual.name.firstForenameOrInitial}",
+                 "lastName": "${individual.name.surname}",
+                 "dateOfBirth": "${individual.dateOfBirth.toString("yyyy-MM-dd")}",
+                 "address": {
+                   "line1": "${individual.address.line1}",
+                   "line2": "${individual.address.line2}"
+                 }
+               }
+             }""")))
 
   }
 

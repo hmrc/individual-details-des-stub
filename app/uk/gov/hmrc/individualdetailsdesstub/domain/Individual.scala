@@ -17,6 +17,7 @@
 package uk.gov.hmrc.individualdetailsdesstub.domain
 
 import org.joda.time.LocalDate
+import uk.gov.hmrc.domain.SaUtr
 
 case class IndividualName(firstForenameOrInitial: String,
                           surname: String,

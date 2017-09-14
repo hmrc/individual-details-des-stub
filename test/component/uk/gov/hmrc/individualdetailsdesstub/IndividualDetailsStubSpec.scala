@@ -133,5 +133,34 @@ class IndividualDetailsStubSpec extends BaseSpec {
       result.code shouldBe Status.NOT_FOUND
       Json.parse(result.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
     }
+
+    scenario("Retrieve an individual by SA UTR") {
+
+      val cidPerson = CidPerson(CidNames(CidName("Adrian", "Adams")), TaxIds(nino, saUtr), "21031970")
+
+      Given("A test individual exists for a given SA UTR")
+      ApiPlatformTestUserStub.getBySaUtrReturnsTestUserDetails(saUtr, cidPerson)
+
+      When("I retrieve the individual by its SA UTR")
+      val result = Http(s"$serviceUrl/matching/find?saUtr=${saUtr.utr}").asString
+      result.code shouldBe Status.OK
+
+      Then("The individual is returned in an citizen-details format")
+      Json.parse(result.body) shouldBe Json.toJson(Seq(cidPerson))
+    }
+
+    scenario("Retrieve an individual with a non existing SA UTR") {
+
+      Given("A test individual does not exist for a given SA UTR")
+      ApiPlatformTestUserStub.getBySaUtrReturnsNoTestUser(saUtr)
+
+      When("I try to match the individual by its SA UTR")
+      val result = Http(s"$serviceUrl/matching/find?saUtr=${saUtr.utr}").asString
+
+      Then("A 404 (Not Found) is returned")
+      result.code shouldBe Status.NOT_FOUND
+      Json.parse(result.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
+    }
+
   }
 }

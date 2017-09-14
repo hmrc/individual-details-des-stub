@@ -27,7 +27,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.domain.{Nino, TaxIds}
+import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIds}
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -102,6 +102,42 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
       when(individualsService.getIndividualByShortNino(refEq(ninoNoSuffix))(any[HeaderCarrier])).thenReturn(failed(new RuntimeException("test error")))
 
       val result = invoke(GET, s"/pay-as-you-earn/individuals/${ninoNoSuffix.nino}")
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
+  }
+
+  "find Individual by SA UTR" should {
+
+    val saUtr = SaUtr("1234567890")
+
+    "return an openid individual and a http 200 (ok) when a test user exists for a given SA UTR" in {
+      when(individualsService.getCidPersonBySaUtr(refEq(saUtr))(any[HeaderCarrier])).thenReturn(successful(cidPerson))
+
+      val result = invoke(GET, s"/matching/find?saUtr=${saUtr.utr}")
+
+      status(result) shouldBe OK
+      jsonBodyOf(result) shouldBe Json.parse(
+        s"""
+           [{
+              "ids": {
+                "nino": "${cidPerson.ids.nino.get}"
+              },
+              "name": {
+                "current": {
+                  "firstName": "${cidPerson.name.current.firstName}",
+                  "lastName": "${cidPerson.name.current.lastName}"
+                }
+              },
+              "dateOfBirth": "${cidPerson.dateOfBirth}"
+           }]
+        """)
+    }
+
+    "return a 500 (Internal Server Error) when an error occurred" in {
+      when(individualsService.getCidPersonBySaUtr(refEq(saUtr))(any[HeaderCarrier])).thenReturn(failed(new RuntimeException("test error")))
+
+      val result = invoke(GET, s"/matching/find?saUtr=${saUtr.utr}")
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }

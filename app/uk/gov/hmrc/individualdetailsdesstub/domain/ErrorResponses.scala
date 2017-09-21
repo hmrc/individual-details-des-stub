@@ -30,7 +30,6 @@ sealed abstract class ErrorResponse(
 }
 
 case class ErrorBadRequest(errorMessage: String) extends ErrorResponse(BAD_REQUEST, "BAD_REQUEST", errorMessage)
-case class ErrorInvalidRequest(errorMessage: String) extends ErrorResponse(BAD_REQUEST, "INVALID_REQUEST", errorMessage)
 case class ErrorNotFound(errorMessage: String) extends ErrorResponse(NOT_FOUND, "NOT_FOUND", errorMessage)
 case object ErrorInternalServer extends ErrorResponse(INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "Internal server error")
 

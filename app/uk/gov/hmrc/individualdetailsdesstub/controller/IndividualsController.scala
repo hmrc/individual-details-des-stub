@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future.successful
 
 @Singleton
 class IndividualsController @Inject()(individualsService: IndividualsService) extends BaseController {
@@ -41,7 +42,7 @@ class IndividualsController @Inject()(individualsService: IndividualsService) ex
     (maybeNino, maybeSaUtr) match {
       case (Some(nino), _) => findCidPerson(nino)
       case (_, Some(saUtr)) => findCidPerson(saUtr)
-      case (None, None) => throw new TestUserNotFoundException
+      case (None, None) => successful(new ErrorInvalidRequest("sautr or nino is required").toHttpResponse)
     }
   }
 

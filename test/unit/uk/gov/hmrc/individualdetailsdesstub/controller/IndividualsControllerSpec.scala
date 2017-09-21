@@ -114,7 +114,7 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
     "return an openid individual and a http 200 (ok) when a test user exists for a given SA UTR" in {
       when(individualsService.getCidPersonBySaUtr(refEq(saUtr))(any[HeaderCarrier])).thenReturn(successful(cidPerson))
 
-      val result = invoke(GET, s"/matching/find?saUtr=${saUtr.utr}")
+      val result = invoke(GET, s"/matching/find?sautr=${saUtr.utr}")
 
       status(result) shouldBe OK
       jsonBodyOf(result) shouldBe Json.parse(
@@ -137,7 +137,7 @@ class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with M
     "return a 500 (Internal Server Error) when an error occurred" in {
       when(individualsService.getCidPersonBySaUtr(refEq(saUtr))(any[HeaderCarrier])).thenReturn(failed(new RuntimeException("test error")))
 
-      val result = invoke(GET, s"/matching/find?saUtr=${saUtr.utr}")
+      val result = invoke(GET, s"/matching/find?sautr=${saUtr.utr}")
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }

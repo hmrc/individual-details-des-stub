@@ -142,7 +142,7 @@ class IndividualDetailsStubSpec extends BaseSpec {
       ApiPlatformTestUserStub.getBySaUtrReturnsTestUserDetails(saUtr, cidPerson)
 
       When("I retrieve the individual by its SA UTR")
-      val result = Http(s"$serviceUrl/matching/find?saUtr=${saUtr.utr}").asString
+      val result = Http(s"$serviceUrl/matching/find?sautr=${saUtr.utr}").asString
       result.code shouldBe Status.OK
 
       Then("The individual is returned in an citizen-details format")
@@ -155,12 +155,24 @@ class IndividualDetailsStubSpec extends BaseSpec {
       ApiPlatformTestUserStub.getBySaUtrReturnsNoTestUser(saUtr)
 
       When("I try to match the individual by its SA UTR")
-      val result = Http(s"$serviceUrl/matching/find?saUtr=${saUtr.utr}").asString
+      val result = Http(s"$serviceUrl/matching/find?sautr=${saUtr.utr}").asString
 
       Then("A 404 (Not Found) is returned")
       result.code shouldBe Status.NOT_FOUND
       Json.parse(result.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
     }
 
+    scenario("Retrieve an individual without a NINO or SA UTR") {
+
+      Given("A no NINO or SA UTR parameters")
+      val httpRequest = Http(s"$serviceUrl/matching/find")
+
+      When("I invoke the '/matching/find' endpoint")
+      val result = httpRequest.asString
+
+      Then("A 400 (Bad Request) is returned")
+      result.code shouldBe Status.BAD_REQUEST
+      Json.parse(result.body) shouldBe Json.obj("code" -> "INVALID_REQUEST", "message" -> "sautr or nino is required")
+    }
   }
 }

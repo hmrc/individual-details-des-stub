@@ -172,7 +172,7 @@ class IndividualDetailsStubSpec extends BaseSpec {
 
       Then("A 400 (Bad Request) is returned")
       result.code shouldBe Status.BAD_REQUEST
-      Json.parse(result.body) shouldBe Json.obj("code" -> "INVALID_REQUEST", "message" -> "sautr or nino is required")
+      Json.parse(result.body) shouldBe Json.obj("code" -> "BAD_REQUEST", "message" -> "sautr or nino is required")
     }
   }
 }

@@ -42,7 +42,7 @@ class IndividualsController @Inject()(individualsService: IndividualsService) ex
     (maybeNino, maybeSaUtr) match {
       case (Some(nino), _) => findCidPerson(nino)
       case (_, Some(saUtr)) => findCidPerson(saUtr)
-      case (None, None) => successful(new ErrorInvalidRequest("sautr or nino is required").toHttpResponse)
+      case (None, None) => successful(ErrorBadRequest("sautr or nino is required").toHttpResponse)
     }
   }
 

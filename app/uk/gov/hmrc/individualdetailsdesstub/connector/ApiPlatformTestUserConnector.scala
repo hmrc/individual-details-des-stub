@@ -23,10 +23,10 @@ import uk.gov.hmrc.individualdetailsdesstub.config.WSHttp
 import uk.gov.hmrc.individualdetailsdesstub.domain.{NinoNoSuffix, TestIndividual, TestUserNotFoundException}
 import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters.formatTestUser
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpGet, NotFoundException}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet, NotFoundException }
 
 @Singleton
 class ApiPlatformTestUserConnector extends ServicesConfig {

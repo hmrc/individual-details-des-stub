@@ -30,10 +30,10 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIds}
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future._
+import uk.gov.hmrc.http.HeaderCarrier
 
 class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 

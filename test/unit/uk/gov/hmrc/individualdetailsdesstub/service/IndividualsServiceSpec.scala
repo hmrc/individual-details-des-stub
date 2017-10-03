@@ -23,8 +23,8 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIds}
 import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnector
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.HeaderCarrier
 
 class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
 

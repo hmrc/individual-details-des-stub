@@ -16,24 +16,20 @@
 
 package uk.gov.hmrc.individualdetailsdesstub.config
 
-import com.typesafe.config.Config
-import net.ceedubs.ficus.Ficus._
 import play.api.mvc.RequestHeader
 import play.api.{Application, Configuration, Play}
 import uk.gov.hmrc.individualdetailsdesstub.domain.ErrorBadRequest
-import uk.gov.hmrc.play.audit.filters.AuditFilter
 import uk.gov.hmrc.play.auth.controllers.AuthParamsControllerConfig
 import uk.gov.hmrc.play.auth.microservice.filters.AuthorisationFilter
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
-import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
-import uk.gov.hmrc.play.http.logging.filters.LoggingFilter
 import uk.gov.hmrc.play.microservice.bootstrap.DefaultMicroserviceGlobal
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.microservice.filters.{AuditFilter, LoggingFilter, MicroserviceFilterSupport}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object ControllerConfiguration extends ControllerConfig {
-  lazy val controllerConfigs = Play.current.configuration.underlying.as[Config]("controllers")
+  lazy val controllerConfigs = Play.current.configuration.underlying.getConfig("controllers")
 }
 
 object AuthParamsControllerConfiguration extends AuthParamsControllerConfig {

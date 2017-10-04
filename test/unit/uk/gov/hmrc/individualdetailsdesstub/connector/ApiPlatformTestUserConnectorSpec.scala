@@ -25,8 +25,8 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnector
 import uk.gov.hmrc.individualdetailsdesstub.domain._
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.http.HeaderCarrier
 
 class ApiPlatformTestUserConnectorSpec extends UnitSpec with BeforeAndAfterEach with WithFakeApplication {
 

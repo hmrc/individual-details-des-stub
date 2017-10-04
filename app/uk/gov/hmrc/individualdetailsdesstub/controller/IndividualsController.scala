@@ -25,11 +25,11 @@ import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
 import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters._
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
+import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class IndividualsController @Inject()(individualsService: IndividualsService) extends BaseController {

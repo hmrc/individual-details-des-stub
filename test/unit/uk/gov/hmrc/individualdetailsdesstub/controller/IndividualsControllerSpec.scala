@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,28 +20,29 @@ import org.joda.time.LocalDate
 import org.mockito.Matchers.{any, refEq}
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.OK
 import play.api.inject.bind
-import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIds}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import unit.uk.gov.hmrc.individualdetailsdesstub.util.UnitSpec
 
 import scala.concurrent.Future._
-import uk.gov.hmrc.http.HeaderCarrier
 
-class IndividualsControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
+class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
   private val individualsService = mock[IndividualsService]
 
-  override def bindModules: Seq[GuiceableModule] = Seq()
-
-  override lazy val fakeApplication = new GuiceApplicationBuilder().configure("metrics.enabled" -> "false").configure("auditing.enabled" -> "false")
+  override lazy val fakeApplication = new GuiceApplicationBuilder()
+    .configure("metrics.enabled" -> "false")
+    .configure("auditing.enabled" -> "false")
     .overrides(bind[IndividualsService].toInstance(individualsService))
     .build()
 

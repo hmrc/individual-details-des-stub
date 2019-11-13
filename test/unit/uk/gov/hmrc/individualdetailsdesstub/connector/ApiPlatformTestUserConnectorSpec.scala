@@ -25,11 +25,14 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.individualdetailsdesstub.config.AppConfig
 import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnector
 import uk.gov.hmrc.individualdetailsdesstub.domain._
+import uk.gov.hmrc.individualdetailsdesstub.http.HttpClientOps
 import unit.uk.gov.hmrc.individualdetailsdesstub.util.UnitSpec
+import unit.uk.gov.hmrc.individualdetailsdesstub.util.utils.SpecBase
 
-class ApiPlatformTestUserConnectorSpec extends UnitSpec with BeforeAndAfterEach with GuiceOneAppPerSuite {
+class ApiPlatformTestUserConnectorSpec extends SpecBase with BeforeAndAfterEach {
 
   val stubPort = sys.env.getOrElse("WIREMOCK", "11121").toInt
   val stubHost = "localhost"
@@ -41,10 +44,13 @@ class ApiPlatformTestUserConnectorSpec extends UnitSpec with BeforeAndAfterEach 
     Some(nino),
     TestUserIndividualDetails("Adrian", "Adams", LocalDate.parse("1970-03-21"), TestUserAddress("1 Abbey Road", "Aberdeen")))
 
+  val testAppConfig = fakeApplication.injector.instanceOf[AppConfig]
+  val testHttpClient = fakeApplication.injector.instanceOf[HttpClientOps]
+
   trait Setup {
     implicit val hc = HeaderCarrier()
 
-    val underTest = new ApiPlatformTestUserConnector {
+    val underTest = new ApiPlatformTestUserConnector(testAppConfig, testHttpClient) {
       override val serviceUrl = "http://localhost:11121"
     }
   }

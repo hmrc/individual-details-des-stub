@@ -17,7 +17,6 @@
 package uk.gov.hmrc.individualdetailsdesstub.controller
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.Logger
 import play.api.libs.json.Json.toJson
 import play.api.mvc.{Action, AnyContent, Result}
@@ -25,11 +24,11 @@ import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
 import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters._
-import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
 @Singleton
 class IndividualsController @Inject()(individualsService: IndividualsService) extends BaseController {

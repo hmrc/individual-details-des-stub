@@ -17,8 +17,8 @@ lazy val ComponentTest = config("component") extend Test
 
 val compile = Seq(
   ws,
-  hmrc %% "microservice-bootstrap" % "6.18.0",
-  hmrc %% "domain" % "4.1.0"
+  hmrc %% "bootstrap-play-25" % "5.1.0",
+  hmrc %% "domain" % "5.6.0-play-25"
 )
 
 def test(scope: String = "test,it") = Seq(

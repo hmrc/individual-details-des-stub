@@ -21,6 +21,8 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, JsValue, Json, Writes}
 import uk.gov.hmrc.domain.{SaUtr, TaxIds}
 import uk.gov.hmrc.individualdetailsdesstub.domain._
+import play.api.libs.json.JodaWrites._
+import play.api.libs.json.JodaReads._
 
 object JsonFormatters {
   implicit val shortNinoJsonFormat = Json.format[NinoNoSuffix]

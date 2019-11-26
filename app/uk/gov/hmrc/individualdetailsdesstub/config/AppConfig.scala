@@ -16,23 +16,14 @@
 
 package uk.gov.hmrc.individualdetailsdesstub.config
 
-import com.google.inject.{AbstractModule, Inject}
 import com.google.inject.name.Names
-import play.api.Mode.Mode
+import com.google.inject.{AbstractModule, Inject}
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.bootstrap.config.LoadAuditingConfig
-import uk.gov.hmrc.play.config.ServicesConfig
 
-class AppConfig @Inject()(environment: Environment, configuration: Configuration) extends AbstractModule with ServicesConfig with AuditConnector {
-
-  lazy val auditingConfig = LoadAuditingConfig(runModeConfiguration, mode, "auditing")
-
-  override protected def mode: Mode = environment.mode
-  override protected def runModeConfiguration: Configuration = configuration
+class AppConfig @Inject()(environment: Environment, configuration: Configuration) extends AbstractModule {
 
   override def configure(): Unit = {
-    val delay = configuration.getInt("retryDelay").getOrElse(1000)
+    val delay = configuration.getOptional[Int]("retryDelay").getOrElse(1000)
 
     bindConstant().annotatedWith(Names.named("retryDelay")).to(delay)
   }

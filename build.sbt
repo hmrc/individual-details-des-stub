@@ -17,19 +17,20 @@ lazy val ComponentTest = config("component") extend Test
 
 val compile = Seq(
   ws,
-  hmrc %% "bootstrap-play-25" % "5.1.0",
-  hmrc %% "domain" % "5.6.0-play-25"
+  hmrc %% "bootstrap-play-26" % "1.3.0",
+  hmrc %% "domain" % "5.6.0-play-26",
+  "com.typesafe.play" %% "play-json-joda" % "2.6.10"
 )
 
 def test(scope: String = "test,it") = Seq(
-  hmrc %% "service-integration-test" % "0.9.0-play-25" % scope,
-  "org.scalatest" %% "scalatest" % "2.2.6" % scope,
+  hmrc %% "service-integration-test" % "0.9.0-play-26" % scope,
+  "org.scalatest" %% "scalatest" % "3.0.0" % scope,
   "org.pegdown" % "pegdown" % "1.6.0" % scope,
   "org.mockito" % "mockito-all" % "1.10.19" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
   "org.scalaj" %% "scalaj-http" % "2.3.0" % scope,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % scope,
-  "com.github.tomakehurst" % "wiremock" % "2.6.0" % scope
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.0" % scope,
+  "com.github.tomakehurst" % "wiremock-jre8" % "2.21.0" % scope
 )
 
 lazy val microservice = Project(appName, file("."))
@@ -43,8 +44,7 @@ lazy val microservice = Project(appName, file("."))
     testOptions in Test := Seq(Tests.Filter(unitFilter)),
     retrieveManaged := true,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
-    unmanagedResourceDirectories in Test <<= (baseDirectory in Test) (base => Seq(base / "test/resources")),
-    routesGenerator := StaticRoutesGenerator
+    unmanagedResourceDirectories in Test <<= (baseDirectory in Test) (base => Seq(base / "test/resources"))
   )
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)

@@ -19,7 +19,7 @@ val compile = Seq(
   ws,
   hmrc %% "bootstrap-backend-play-26" % "2.24.0",
   hmrc %% "domain" % "5.9.0-play-26",
-  "com.typesafe.play" %% "play-json-joda" % "2.9.0"
+  "com.typesafe.play" %% "play-json-joda" % "2.9.1"
 )
 
 def test(scope: String = "test,it") = Seq(
@@ -30,7 +30,7 @@ def test(scope: String = "test,it") = Seq(
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
   "org.scalaj" %% "scalaj-http" % "2.4.2" % scope,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % scope,
-  "com.github.tomakehurst" % "wiremock-jre8" % "2.27.1" % scope
+  "com.github.tomakehurst" % "wiremock-jre8" % "2.27.2" % scope
 )
 
 lazy val microservice = Project(appName, file("."))

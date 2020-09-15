@@ -17,6 +17,6 @@
 package uk.gov.hmrc.individualdetailsdesstub.http
 
 import com.google.inject.Inject
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 
 class HttpClientOps @Inject()(val http: HttpClient)

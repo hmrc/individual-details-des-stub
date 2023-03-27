@@ -20,11 +20,10 @@ import component.uk.gov.hmrc.individualdetailsdesstub.stubs.{ApiPlatformTestUser
 import org.joda.time.LocalDate
 import play.api.http.Status
 import play.api.libs.json.Json
+import scalaj.http.Http
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIds}
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters._
-
-import scalaj.http.Http
 
 class IndividualDetailsStubSpec extends BaseSpec {
 

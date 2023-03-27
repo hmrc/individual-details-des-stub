@@ -17,9 +17,8 @@
 package unit.uk.gov.hmrc.individualdetailsdesstub.controller
 
 import org.joda.time.LocalDate
-import org.mockito.Matchers.{any, refEq}
-import org.mockito.Mockito.when
-import org.scalatest.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers.{any, refEq}
+import org.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.OK
 import play.api.inject.bind

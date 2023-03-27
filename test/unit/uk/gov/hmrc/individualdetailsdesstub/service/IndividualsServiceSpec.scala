@@ -18,7 +18,7 @@ package unit.uk.gov.hmrc.individualdetailsdesstub.service
 
 import org.joda.time.LocalDate
 import org.mockito.Mockito.when
-import org.scalatest.mockito.MockitoSugar
+import org.mockito.MockitoSugar
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIds}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnector

@@ -18,6 +18,7 @@ package uk.gov.hmrc.individualdetailsdesstub.domain
 
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain._
+import scala.language.postfixOps
 
 case class CidName(firstName: String, lastName: String)
 

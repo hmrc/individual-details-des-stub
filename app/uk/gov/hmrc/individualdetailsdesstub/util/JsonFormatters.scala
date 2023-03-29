@@ -18,32 +18,33 @@ package uk.gov.hmrc.individualdetailsdesstub.util
 
 import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
-import play.api.libs.json.{JsPath, JsValue, Json, Writes}
-import uk.gov.hmrc.domain.{SaUtr, TaxIds}
-import uk.gov.hmrc.individualdetailsdesstub.domain._
 import play.api.libs.json.JodaWrites._
-import play.api.libs.json.JodaReads._
+import play.api.libs.json._
+import uk.gov.hmrc.domain.TaxIds
+import uk.gov.hmrc.individualdetailsdesstub.domain._
 
 object JsonFormatters {
-  implicit val shortNinoJsonFormat = Json.format[NinoNoSuffix]
-  implicit val individualAddressJsonFormat = Json.format[IndividualAddress]
-  implicit val individualNameJsonFormat = Json.format[IndividualName]
-  implicit val individualJsonFormat = Json.format[Individual]
+  implicit val yodaFormat: Reads[LocalDate] = play.api.libs.json.JodaReads.DefaultJodaLocalDateReads
 
-  implicit val formatTestUserAddress = Json.format[TestUserAddress]
-  implicit val formatTestUserIndividualDetails = Json.format[TestUserIndividualDetails]
-  implicit val formatTestUser = Json.format[TestIndividual]
+  implicit val shortNinoJsonFormat: OFormat[NinoNoSuffix] = Json.format[NinoNoSuffix]
+  implicit val individualAddressJsonFormat: OFormat[IndividualAddress] = Json.format[IndividualAddress]
+  implicit val individualNameJsonFormat: OFormat[IndividualName] = Json.format[IndividualName]
+  implicit val individualJsonFormat: OFormat[Individual] = Json.format[Individual]
 
-  implicit val errorResponseWrites = new Writes[ErrorResponse] {
+  implicit val formatTestUserAddress: OFormat[TestUserAddress] = Json.format[TestUserAddress]
+  implicit val formatTestUserIndividualDetails: OFormat[TestUserIndividualDetails] = Json.format[TestUserIndividualDetails]
+  implicit val formatTestUser: OFormat[TestIndividual] = Json.format[TestIndividual]
+
+  implicit val errorResponseWrites: Writes[ErrorResponse] = new Writes[ErrorResponse] {
     def writes(e: ErrorResponse): JsValue = Json.obj("code" -> e.errorCode, "message" -> e.message)
   }
 
-  implicit val taxIdsFormat = TaxIds.format(TaxIds.defaultSerialisableIds :_*)
-  implicit val CidNameJsonFormat = Json.format[CidName]
-  implicit val CidNamesJsonFormat = Json.format[CidNames]
-  implicit val CidPersonJsonFormat = Json.format[CidPerson]
+  implicit val taxIdsFormat: Format[TaxIds] = TaxIds.format(TaxIds.defaultSerialisableIds: _*)
+  implicit val CidNameJsonFormat: OFormat[CidName] = Json.format[CidName]
+  implicit val CidNamesJsonFormat: OFormat[CidNames] = Json.format[CidNames]
+  implicit val CidPersonJsonFormat: OFormat[CidPerson] = Json.format[CidPerson]
 
-  implicit val openidIndividualWrite : Writes[OpenidIndividual] = (
+  implicit val openidIndividualWrite: Writes[OpenidIndividual] = (
     (JsPath \ "nino").write[String] and
       (JsPath \ "names" \ "1").write[IndividualName] and
       (JsPath \ "dateOfBirth").write[LocalDate] and

@@ -16,22 +16,22 @@
 
 package component.uk.gov.hmrc.individualdetailsdesstub.stubs
 
-import java.util.concurrent.TimeUnit
-
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import org.scalatest._
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.Duration
 
-trait BaseSpec extends FeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with GuiceOneServerPerSuite
-  with GivenWhenThen {
+trait BaseSpec extends AnyFeatureSpec
+  with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with GuiceOneServerPerSuite with GivenWhenThen {
 
-  override lazy val port = 9000
   implicit override lazy val app: Application = GuiceApplicationBuilder().configure(
     "auditing.enabled" -> false,
     "auditing.traceRequests" -> false,

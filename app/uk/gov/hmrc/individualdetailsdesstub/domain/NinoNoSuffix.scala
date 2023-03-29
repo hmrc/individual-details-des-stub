@@ -21,7 +21,9 @@ import uk.gov.hmrc.domain._
 
 case class NinoNoSuffix(nino: String) extends TaxIdentifier with SimpleName {
   require(NinoNoSuffix.isValid(nino), s"$nino is not a valid nino.")
+
   override def value: String = nino
+
   override val name: String = "nino-no-suffix"
 }
 

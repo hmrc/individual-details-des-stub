@@ -20,8 +20,8 @@ package utils
 
 import com.typesafe.config.ConfigFactory
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.{Application, Configuration}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.{Application, Configuration}
 
 trait SpecBase extends UnitSpec with GuiceOneAppPerSuite {
 

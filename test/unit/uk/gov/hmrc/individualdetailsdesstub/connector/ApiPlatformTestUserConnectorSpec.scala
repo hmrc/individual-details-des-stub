@@ -24,7 +24,6 @@ import org.scalatest.BeforeAndAfterEach
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.individualdetailsdesstub.config.AppConfig
 import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnector
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.http.HttpClientOps

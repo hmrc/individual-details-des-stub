@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.individualdetailsdesstub.service
 
-import javax.inject.{Inject, Singleton}
-
 import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnector
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class IndividualsService @Inject()(apiPlatformTestUserConnector: ApiPlatformTestUserConnector) {

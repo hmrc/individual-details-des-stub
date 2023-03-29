@@ -28,7 +28,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Singleton
-class ApiPlatformTestUserConnector @Inject() (servicesConfig: ServicesConfig, httpClientOps: HttpClientOps) {
+class ApiPlatformTestUserConnector @Inject()(servicesConfig: ServicesConfig, httpClientOps: HttpClientOps) {
   val serviceUrl = servicesConfig.baseUrl("api-platform-test-user")
   val http: HttpGet = httpClientOps.http
 

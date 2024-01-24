@@ -25,20 +25,14 @@ import play.api.{Application, Configuration}
 
 trait SpecBase extends UnitSpec with GuiceOneAppPerSuite {
 
-  lazy val additionalConfig = Configuration()
-
-  def buildFakeApplication(extraConfig: Configuration): Application = {
-    new GuiceApplicationBuilder()
-      .configure(Configuration(
-        ConfigFactory.parseString(
-          """
-            | metrics.jvm = false
-            | metrics.enabled = true
+  override lazy val fakeApplication: Application = new GuiceApplicationBuilder()
+    .configure(Configuration(
+      ConfigFactory.parseString(
+        """
+          | metrics.jvm = false
+          | metrics.enabled = true
           """.stripMargin)
-      ) ++ extraConfig)
-      .build()
-  }
-
-  override lazy val fakeApplication: Application = buildFakeApplication(additionalConfig)
+    ).withFallback(Configuration()))
+    .build()
 
 }

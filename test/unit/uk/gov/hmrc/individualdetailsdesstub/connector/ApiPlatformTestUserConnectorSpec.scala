@@ -30,8 +30,11 @@ import uk.gov.hmrc.individualdetailsdesstub.http.HttpClientOps
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import unit.uk.gov.hmrc.individualdetailsdesstub.util.utils.SpecBase
 
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
+
 class ApiPlatformTestUserConnectorSpec extends SpecBase with BeforeAndAfterEach {
 
+  implicit val ec: ExecutionContextExecutor = ExecutionContext.global
   val stubPort = sys.env.getOrElse("WIREMOCK", "11121").toInt
   val stubHost = "localhost"
   val wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
@@ -53,12 +56,12 @@ class ApiPlatformTestUserConnectorSpec extends SpecBase with BeforeAndAfterEach 
     }
   }
 
-  override def beforeEach() {
+  override def beforeEach(): Unit = {
     wireMockServer.start()
     configureFor(stubHost, stubPort)
   }
 
-  override def afterEach() {
+  override def afterEach(): Unit = {
     wireMockServer.stop()
   }
 

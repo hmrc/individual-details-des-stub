@@ -24,12 +24,11 @@ import uk.gov.hmrc.individualdetailsdesstub.http.HttpClientOps
 import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters.formatTestUser
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApiPlatformTestUserConnector @Inject()(servicesConfig: ServicesConfig, httpClientOps: HttpClientOps) {
-  val serviceUrl = servicesConfig.baseUrl("api-platform-test-user")
+class ApiPlatformTestUserConnector @Inject()(servicesConfig: ServicesConfig, httpClientOps: HttpClientOps)(implicit ec: ExecutionContext) {
+  val serviceUrl: String = servicesConfig.baseUrl("api-platform-test-user")
   val http: HttpGet = httpClientOps.http
 
   def getByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] =
@@ -45,5 +44,4 @@ class ApiPlatformTestUserConnector @Inject()(servicesConfig: ServicesConfig, htt
     http.GET[TestIndividual](url) recover {
       case _: NotFoundException => throw new TestUserNotFoundException
     }
-
 }

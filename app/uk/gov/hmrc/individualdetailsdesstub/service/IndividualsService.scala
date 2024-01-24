@@ -22,11 +22,10 @@ import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnect
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class IndividualsService @Inject()(apiPlatformTestUserConnector: ApiPlatformTestUserConnector) {
+class IndividualsService @Inject()(apiPlatformTestUserConnector: ApiPlatformTestUserConnector)(implicit ec: ExecutionContext) {
 
   def getIndividualByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[Individual] =
     apiPlatformTestUserConnector.getByShortNino(shortNino) map (Individual(shortNino, _))

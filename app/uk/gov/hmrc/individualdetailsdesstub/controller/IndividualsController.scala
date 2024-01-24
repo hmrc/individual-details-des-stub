@@ -27,11 +27,11 @@ import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters._
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future.successful
 
 @Singleton
-class IndividualsController @Inject()(individualsService: IndividualsService, cc: ControllerComponents)
+class IndividualsController @Inject()(individualsService: IndividualsService, cc: ControllerComponents)(implicit ec: ExecutionContext)
   extends BackendController(cc)
     with Logging {
 

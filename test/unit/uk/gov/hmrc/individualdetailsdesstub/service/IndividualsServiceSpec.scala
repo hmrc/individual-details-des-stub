@@ -25,8 +25,11 @@ import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
 import unit.uk.gov.hmrc.individualdetailsdesstub.util.UnitSpec
 
+import scala.concurrent.ExecutionContext
+
 class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
 
+  implicit val ec : ExecutionContext = ExecutionContext.global
   private val ninoNoSuffix = NinoNoSuffix("AB123456")
   private val nino = Nino("AB123456A")
   private val saUtr = SaUtr("12345")

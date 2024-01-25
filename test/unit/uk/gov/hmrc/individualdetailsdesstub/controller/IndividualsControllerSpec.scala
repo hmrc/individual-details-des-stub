@@ -33,12 +33,14 @@ import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
 import unit.uk.gov.hmrc.individualdetailsdesstub.util.UnitSpec
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future._
 
 class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
   private val individualsService = mock[IndividualsService]
 
+  implicit val ec : ExecutionContext = ExecutionContext.global
   override lazy val fakeApplication = new GuiceApplicationBuilder()
     .configure("metrics.enabled" -> "false")
     .configure("auditing.enabled" -> "false")

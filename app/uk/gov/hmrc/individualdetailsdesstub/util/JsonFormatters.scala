@@ -16,15 +16,15 @@
 
 package uk.gov.hmrc.individualdetailsdesstub.util
 
-import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
-import play.api.libs.json.JodaWrites._
+import play.api.libs.json.Format.GenericFormat
 import play.api.libs.json._
 import uk.gov.hmrc.domain.TaxIds
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 
+import java.time.LocalDate
+
 object JsonFormatters {
-  implicit val yodaFormat: Reads[LocalDate] = play.api.libs.json.JodaReads.DefaultJodaLocalDateReads
 
   implicit val shortNinoJsonFormat: OFormat[NinoNoSuffix] = Json.format[NinoNoSuffix]
   implicit val individualAddressJsonFormat: OFormat[IndividualAddress] = Json.format[IndividualAddress]
@@ -44,10 +44,10 @@ object JsonFormatters {
   implicit val CidNamesJsonFormat: OFormat[CidNames] = Json.format[CidNames]
   implicit val CidPersonJsonFormat: OFormat[CidPerson] = Json.format[CidPerson]
 
-  implicit val openidIndividualWrite: Writes[OpenidIndividual] = (
-    (JsPath \ "nino").write[String] and
-      (JsPath \ "names" \ "1").write[IndividualName] and
-      (JsPath \ "dateOfBirth").write[LocalDate] and
-      (JsPath \ "addresses" \ "1").write[IndividualAddress]
-    )(unlift(OpenidIndividual.unapply))
+//  implicit val openidIndividualWrite: Writes[OpenidIndividual] = (
+//    (JsPath \ "nino").write[String] and
+//      (JsPath \ "names" \ "1").write[IndividualName] and
+//      (JsPath \ "dateOfBirth").write[LocalDate] and
+//      (JsPath \ "addresses" \ "1").write[IndividualAddress]
+//    )(unlift(OpenidIndividual.unapply))
 }

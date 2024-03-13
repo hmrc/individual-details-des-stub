@@ -19,6 +19,7 @@ package uk.gov.hmrc.individualdetailsdesstub.domain
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain._
 
+import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder}
 import scala.language.postfixOps
 
 case class CidName(firstName: String, lastName: String)
@@ -35,7 +36,7 @@ object CidPerson {
     CidPerson(
       CidNames(CidName(testUser.individualDetails.firstName, testUser.individualDetails.lastName)),
       TaxIds(ids.toSet),
-      testUser.individualDetails.dateOfBirth.toString("ddMMyyyy")
+      testUser.individualDetails.dateOfBirth.format(DateTimeFormatter.ofPattern("dd-MM-uuuu"))
     )
   }
 
@@ -45,7 +46,7 @@ object CidPerson {
     CidPerson(
       CidNames(CidName(testUser.individualDetails.firstName, testUser.individualDetails.lastName)),
       TaxIds(ids.toSet),
-      testUser.individualDetails.dateOfBirth.toString("ddMMyyyy")
+      testUser.individualDetails.dateOfBirth.format(DateTimeFormatter.ofPattern("dd-MM-uuuu"))
     )
   }
 }

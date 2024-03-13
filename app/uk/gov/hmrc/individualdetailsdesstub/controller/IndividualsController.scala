@@ -31,6 +31,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future.successful
 
 @Singleton
+
 class IndividualsController @Inject()(individualsService: IndividualsService, cc: ControllerComponents)(implicit ec: ExecutionContext)
   extends BackendController(cc)
     with Logging {

@@ -20,6 +20,7 @@ import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.{any, refEq}
 import org.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
 import play.api.http.Status.OK
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -41,7 +42,7 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
   private val individualsService = mock[IndividualsService]
 
   implicit val ec : ExecutionContext = ExecutionContext.global
-  override lazy val fakeApplication = new GuiceApplicationBuilder()
+  override lazy val fakeApplication: Application = new GuiceApplicationBuilder()
     .configure("metrics.enabled" -> "false")
     .configure("auditing.enabled" -> "false")
     .overrides(bind[IndividualsService].toInstance(individualsService))

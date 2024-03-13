@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.individualdetailsdesstub.domain
 
-import org.joda.time.LocalDate
 import uk.gov.hmrc.domain.{Nino, SaUtr}
+
+import java.time.LocalDate
 
 case class TestUserAddress(line1: String, line2: String)
 

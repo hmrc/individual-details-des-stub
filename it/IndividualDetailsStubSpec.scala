@@ -17,7 +17,7 @@
 package component.uk.gov.hmrc.individualdetailsdesstub
 
 import component.uk.gov.hmrc.individualdetailsdesstub.stubs.{ApiPlatformTestUserStub, BaseSpec}
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.http.Status
 import play.api.libs.json.Json
 import scalaj.http.Http

@@ -17,13 +17,18 @@
 package component.uk.gov.hmrc.individualdetailsdesstub.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlPathEqualTo}
-import org.joda.time.LocalDate._
-import org.joda.time.format.DateTimeFormat
+
+import java.time.LocalDate._
 import play.api.http.Status
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.individualdetailsdesstub.domain.{CidPerson, Individual, NinoNoSuffix}
 
+import java.time.format.DateTimeFormatter
+
 object ApiPlatformTestUserStub extends MockHost(22001) {
+
+  val format = DateTimeFormatter.ofPattern("ddMMyyyy")
+  val outFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
   def getByNinoReturnsTestUserDetails(nino: Nino, cidPerson: CidPerson) = {
     mock.register(get(urlPathEqualTo(s"/individuals/nino/$nino"))
@@ -37,7 +42,7 @@ object ApiPlatformTestUserStub extends MockHost(22001) {
                "individualDetails": {
                  "firstName": "${cidPerson.name.current.firstName}",
                  "lastName": "${cidPerson.name.current.lastName}",
-                 "dateOfBirth": "${parse(cidPerson.dateOfBirth, DateTimeFormat.forPattern("ddMMyyyy")).toString("yyyy-MM-dd")}",
+                 "dateOfBirth": "${parse(cidPerson.dateOfBirth, format).format(outFormat)}",
                  "address": {
                    "line1": "1 Abbey Road",
                    "line2": "Aberdeen"
@@ -63,7 +68,7 @@ object ApiPlatformTestUserStub extends MockHost(22001) {
                "individualDetails": {
                  "firstName": "${cidPerson.name.current.firstName}",
                  "lastName": "${cidPerson.name.current.lastName}",
-                 "dateOfBirth": "${parse(cidPerson.dateOfBirth, DateTimeFormat.forPattern("ddMMyyyy")).toString("yyyy-MM-dd")}",
+                 "dateOfBirth": "${parse(cidPerson.dateOfBirth, format).format(outFormat)}",
                  "address": {
                    "line1": "1 Abbey Road",
                    "line2": "Aberdeen"
@@ -89,7 +94,7 @@ object ApiPlatformTestUserStub extends MockHost(22001) {
                "individualDetails": {
                  "firstName": "${individual.name.firstForenameOrInitial}",
                  "lastName": "${individual.name.surname}",
-                 "dateOfBirth": "${individual.dateOfBirth.toString("yyyy-MM-dd")}",
+                 "dateOfBirth": "${individual.dateOfBirth.format(outFormat)}",
                  "address": {
                    "line1": "${individual.address.line1}",
                    "line2": "${individual.address.line2}"

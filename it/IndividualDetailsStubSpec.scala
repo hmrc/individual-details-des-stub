@@ -31,9 +31,9 @@ class IndividualDetailsStubSpec extends BaseSpec {
   val ninoNoSuffix = NinoNoSuffix(nino)
   val saUtr = SaUtr("12345")
 
-  feature("Retrieval of user details for openid-connect") {
+  Feature("Retrieval of user details for openid-connect") {
 
-    scenario("Retrieve an individual by SHORTNINO") {
+    Scenario("Retrieve an individual by SHORTNINO") {
 
       val individual = Individual(
         ninoNoSuffix = ninoNoSuffix.nino,
@@ -53,7 +53,7 @@ class IndividualDetailsStubSpec extends BaseSpec {
       Json.parse(result.body) shouldBe Json.toJson(OpenidIndividual(individual))
     }
 
-    scenario("Retrieve an individual with a non-existing SHORTNINO") {
+    Scenario("Retrieve an individual with a non-existing SHORTNINO") {
 
       Given("A test individual does not exist for a given SHORTNINO")
       ApiPlatformTestUserStub.getByShortNinoReturnsNoTestUser(ninoNoSuffix)
@@ -67,9 +67,9 @@ class IndividualDetailsStubSpec extends BaseSpec {
     }
   }
 
-  feature("Retrieval of user details for openid-connect (2.0 endpoint)") {
+  Feature("Retrieval of user details for openid-connect (2.0 endpoint)") {
 
-    scenario("Retrieve an individual by SHORTNINO") {
+    Scenario("Retrieve an individual by SHORTNINO") {
 
       val individual = Individual(
         ninoNoSuffix = ninoNoSuffix.nino,
@@ -89,7 +89,7 @@ class IndividualDetailsStubSpec extends BaseSpec {
       Json.parse(result.body) shouldBe Json.toJson(OpenidIndividual(individual))
     }
 
-    scenario("Retrieve an individual with a non-existing SHORTNINO") {
+    Scenario("Retrieve an individual with a non-existing SHORTNINO") {
 
       Given("A test individual does not exist for a given SHORTNINO")
       ApiPlatformTestUserStub.getByShortNinoReturnsNoTestUser(ninoNoSuffix)
@@ -103,9 +103,9 @@ class IndividualDetailsStubSpec extends BaseSpec {
     }
   }
 
-  feature("Retrieval of user details for citizen-details matching") {
+  Feature("Retrieval of user details for citizen-details matching") {
 
-    scenario("Retrieve an individual by NINO") {
+    Scenario("Retrieve an individual by NINO") {
 
       val cidPerson = CidPerson(CidNames(CidName("Adrian", "Adams")), TaxIds(nino, saUtr), "21031970")
 
@@ -120,7 +120,7 @@ class IndividualDetailsStubSpec extends BaseSpec {
       Json.parse(result.body) shouldBe Json.toJson(Seq(cidPerson))
     }
 
-    scenario("Retrieve an individual with a non existing NINO") {
+    Scenario("Retrieve an individual with a non existing NINO") {
 
       Given("A test individual does not exist for a given NINO")
       ApiPlatformTestUserStub.getByNinoReturnsNoTestUser(nino)
@@ -133,7 +133,7 @@ class IndividualDetailsStubSpec extends BaseSpec {
       Json.parse(result.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
     }
 
-    scenario("Retrieve an individual by SA UTR") {
+    Scenario("Retrieve an individual by SA UTR") {
 
       val cidPerson = CidPerson(CidNames(CidName("Adrian", "Adams")), TaxIds(nino, saUtr), "21031970")
 
@@ -148,7 +148,7 @@ class IndividualDetailsStubSpec extends BaseSpec {
       Json.parse(result.body) shouldBe Json.toJson(Seq(cidPerson))
     }
 
-    scenario("Retrieve an individual with a non existing SA UTR") {
+    Scenario("Retrieve an individual with a non existing SA UTR") {
 
       Given("A test individual does not exist for a given SA UTR")
       ApiPlatformTestUserStub.getBySaUtrReturnsNoTestUser(saUtr)
@@ -161,7 +161,7 @@ class IndividualDetailsStubSpec extends BaseSpec {
       Json.parse(result.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
     }
 
-    scenario("Retrieve an individual without a NINO or SA UTR") {
+    Scenario("Retrieve an individual without a NINO or SA UTR") {
 
       Given("A no NINO or SA UTR parameters")
       val httpRequest = Http(s"$serviceUrl/matching/find")

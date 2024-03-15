@@ -16,16 +16,13 @@
 
 package uk.gov.hmrc.individualdetailsdesstub.util
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.functional.syntax._
-import play.api.libs.json.JodaWrites._
 import play.api.libs.json._
 import uk.gov.hmrc.domain.TaxIds
 import uk.gov.hmrc.individualdetailsdesstub.domain._
 
 object JsonFormatters {
-  implicit val yodaFormat: Reads[LocalDate] = play.api.libs.json.JodaReads.DefaultJodaLocalDateReads
-
   implicit val shortNinoJsonFormat: OFormat[NinoNoSuffix] = Json.format[NinoNoSuffix]
   implicit val individualAddressJsonFormat: OFormat[IndividualAddress] = Json.format[IndividualAddress]
   implicit val individualNameJsonFormat: OFormat[IndividualName] = Json.format[IndividualName]

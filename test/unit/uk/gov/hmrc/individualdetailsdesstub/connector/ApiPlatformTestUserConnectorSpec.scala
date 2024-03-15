@@ -19,7 +19,7 @@ package unit.uk.gov.hmrc.individualdetailsdesstub.connector
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Nino, SaUtr}
@@ -49,7 +49,7 @@ class ApiPlatformTestUserConnectorSpec extends SpecBase with BeforeAndAfterEach 
   val testHttpClient = fakeApplication.injector.instanceOf[HttpClientOps]
 
   trait Setup {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val underTest = new ApiPlatformTestUserConnector(testServicesConfig, testHttpClient) {
       override val serviceUrl = "http://localhost:11121"

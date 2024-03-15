@@ -16,7 +16,7 @@
 
 package unit.uk.gov.hmrc.individualdetailsdesstub.service
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.MockitoSugar
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIds}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -25,6 +25,7 @@ import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
 import unit.uk.gov.hmrc.individualdetailsdesstub.util.UnitSpec
 
+import java.time.format.DateTimeFormatter
 import scala.concurrent.ExecutionContext
 
 class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
@@ -47,13 +48,15 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
     address = IndividualAddress(testUser.individualDetails.address.line1, testUser.individualDetails.address.line2)
   )
 
+  val format = DateTimeFormatter.ofPattern("ddMMyyyy")
+
   val cidPerson = CidPerson(
     CidNames(CidName(testUser.individualDetails.firstName, testUser.individualDetails.lastName)),
     TaxIds(nino, saUtr),
-    testUser.individualDetails.dateOfBirth.toString("ddMMyyyy"))
+    testUser.individualDetails.dateOfBirth.format(format))
 
   trait Setup {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val mockTestUserConnector = mock[ApiPlatformTestUserConnector]
     val individualsService = new IndividualsService(mockTestUserConnector)

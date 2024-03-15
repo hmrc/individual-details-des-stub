@@ -2,11 +2,13 @@ import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 
 val appName = "individual-details-des-stub"
 
+lazy val ItTest = config("it") extend Test
+
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .settings(
     majorVersion := 0,
-    scalaVersion := "2.13.8",
+    scalaVersion := "2.13.12",
     onLoadMessage := "",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     scalacOptions += "-Wconf:src=routes/.*:s",
@@ -15,6 +17,6 @@ lazy val microservice = Project(appName, file("."))
     testOptions -= Tests.Argument("-o", "-u", "target/int-test-reports", "-h", "target/int-test-reports/html-report"),
     testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oNCHPQR", "-u", "target/int-test-reports", "-h", "target/int-test-reports/html-report")
   )
-  .configs(IntegrationTest)
-  .settings(integrationTestSettings(): _*)
+  .configs(ItTest)
+  .settings(inConfig(ItTest)(Defaults.testSettings) *)
   .settings(resolvers += Resolver.jcenterRepo)

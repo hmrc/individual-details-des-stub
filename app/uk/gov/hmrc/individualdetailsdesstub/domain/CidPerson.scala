@@ -19,6 +19,7 @@ package uk.gov.hmrc.individualdetailsdesstub.domain
 import uk.gov.hmrc.domain.TaxIds.TaxIdWithName
 import uk.gov.hmrc.domain._
 
+import java.time.format.DateTimeFormatter
 import scala.language.postfixOps
 
 case class CidName(firstName: String, lastName: String)
@@ -29,13 +30,14 @@ case class CidPerson(name: CidNames, ids: TaxIds, dateOfBirth: String)
 
 object CidPerson {
 
+  private val format = DateTimeFormatter.ofPattern("ddMMyyyy")
   def apply(nino: Nino, testUser: TestIndividual): CidPerson = {
     val ids: Seq[TaxIdWithName] = Seq(testUser.nino, testUser.saUtr) flatten
 
     CidPerson(
       CidNames(CidName(testUser.individualDetails.firstName, testUser.individualDetails.lastName)),
       TaxIds(ids.toSet),
-      testUser.individualDetails.dateOfBirth.toString("ddMMyyyy")
+      testUser.individualDetails.dateOfBirth.format(format)
     )
   }
 
@@ -45,7 +47,7 @@ object CidPerson {
     CidPerson(
       CidNames(CidName(testUser.individualDetails.firstName, testUser.individualDetails.lastName)),
       TaxIds(ids.toSet),
-      testUser.individualDetails.dateOfBirth.toString("ddMMyyyy")
+      testUser.individualDetails.dateOfBirth.format(format)
     )
   }
 }

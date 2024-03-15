@@ -16,10 +16,13 @@
 
 package unit.uk.gov.hmrc.individualdetailsdesstub.controller
 
-import org.joda.time.LocalDate
+import org.apache.pekko.stream.Materializer
+
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.{any, refEq}
 import org.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
 import play.api.http.Status.OK
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -33,6 +36,7 @@ import uk.gov.hmrc.individualdetailsdesstub.domain._
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
 import unit.uk.gov.hmrc.individualdetailsdesstub.util.UnitSpec
 
+import java.time.format.DateTimeFormatter
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future._
 
@@ -40,14 +44,16 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
 
   private val individualsService = mock[IndividualsService]
 
+  val outFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
   implicit val ec : ExecutionContext = ExecutionContext.global
-  override lazy val fakeApplication = new GuiceApplicationBuilder()
+  override lazy val fakeApplication: Application = new GuiceApplicationBuilder()
     .configure("metrics.enabled" -> "false")
     .configure("auditing.enabled" -> "false")
     .overrides(bind[IndividualsService].toInstance(individualsService))
     .build()
 
-  implicit val materializer = fakeApplication.materializer
+  implicit val materializer: Materializer = fakeApplication.materializer
 
   val nino = Nino("AB123456A")
   val ninoNoSuffix = NinoNoSuffix("AB123456")
@@ -60,7 +66,7 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
 
   val cidPerson = CidPerson(CidNames(CidName("John", "Doe")), TaxIds(nino), "10011980")
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   "find Individual by SHORTNINO" should {
     "return an openid individual and a http 200 (ok) when a test user exists for a given SHORTNINO" in {
@@ -80,7 +86,7 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
            |      "surname": "${individual.name.surname}"
            |    }
            |  },
-           |  "dateOfBirth": "${individual.dateOfBirth.toString("yyyy-MM-dd")}",
+           |  "dateOfBirth": "${individual.dateOfBirth.format(outFormat)}",
            |  "addresses": {
            |    "1": {
            |      "line1": "${individual.address.line1}",

@@ -24,7 +24,7 @@ object NinoNoSuffixBinder extends SimpleObjectBinder[NinoNoSuffix](NinoNoSuffix.
 
 package object Binders {
 
-  implicit val ninoQueryStringBinder = new QueryStringBindable[Nino] {
+  implicit val ninoQueryStringBinder: QueryStringBindable[Nino] = new QueryStringBindable[Nino] {
     def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Nino]] = try {
       params.get(key).flatMap(_.headOption).map(value => Right(Nino(value)))
     } catch {
@@ -34,7 +34,7 @@ package object Binders {
     def unbind(key: String, value: Nino): String = QueryStringBindable.bindableString.unbind(key, value.nino)
   }
 
-  implicit val saUtrQueryStringBinder = new QueryStringBindable[SaUtr] {
+  implicit val saUtrQueryStringBinder: QueryStringBindable[SaUtr] = new QueryStringBindable[SaUtr] {
     def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SaUtr]] = try {
       params.get(key).flatMap(_.headOption).map(value => Right(SaUtr(value)))
     } catch {
@@ -44,7 +44,7 @@ package object Binders {
     def unbind(key: String, value: SaUtr): String = QueryStringBindable.bindableString.unbind(key, value.utr)
   }
 
-  implicit val ninoNoSuffixBinder = NinoNoSuffixBinder
+  implicit val ninoNoSuffixBinder: NinoNoSuffixBinder.type = NinoNoSuffixBinder
 
 }
 

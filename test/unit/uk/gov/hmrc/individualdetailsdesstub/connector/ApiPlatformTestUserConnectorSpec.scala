@@ -49,7 +49,7 @@ class ApiPlatformTestUserConnectorSpec extends SpecBase with BeforeAndAfterEach 
   val testHttpClient = fakeApplication.injector.instanceOf[HttpClientOps]
 
   trait Setup {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val underTest = new ApiPlatformTestUserConnector(testServicesConfig, testHttpClient) {
       override val serviceUrl = "http://localhost:11121"

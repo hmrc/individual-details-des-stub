@@ -56,7 +56,7 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
     testUser.individualDetails.dateOfBirth.format(format))
 
   trait Setup {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val mockTestUserConnector = mock[ApiPlatformTestUserConnector]
     val individualsService = new IndividualsService(mockTestUserConnector)

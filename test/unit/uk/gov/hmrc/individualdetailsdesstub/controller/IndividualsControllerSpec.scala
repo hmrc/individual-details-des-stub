@@ -16,6 +16,8 @@
 
 package unit.uk.gov.hmrc.individualdetailsdesstub.controller
 
+import org.apache.pekko.stream.Materializer
+
 import java.time.LocalDate
 import org.mockito.ArgumentMatchers.{any, refEq}
 import org.mockito.MockitoSugar
@@ -51,7 +53,7 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
     .overrides(bind[IndividualsService].toInstance(individualsService))
     .build()
 
-  implicit val materializer = fakeApplication.materializer
+  implicit val materializer: Materializer = fakeApplication.materializer
 
   val nino = Nino("AB123456A")
   val ninoNoSuffix = NinoNoSuffix("AB123456")
@@ -64,7 +66,7 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
 
   val cidPerson = CidPerson(CidNames(CidName("John", "Doe")), TaxIds(nino), "10011980")
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   "find Individual by SHORTNINO" should {
     "return an openid individual and a http 200 (ok) when a test user exists for a given SHORTNINO" in {

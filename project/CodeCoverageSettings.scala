@@ -14,13 +14,25 @@
  * limitations under the License.
  */
 
-resolvers += MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2")
-resolvers += Resolver.url("HMRC-open-artefacts-ivy", url("https://open.artefacts.tax.service.gov.uk/ivy2"))(
-  Resolver.ivyStylePatterns
-)
+import sbt.Def
+import scoverage.ScoverageKeys
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "3.20.0")
-addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "2.5.0")
-addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.1")
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.10")
+object CodeCoverageSettings {
+
+  val excludedPackages: Seq[String] = Seq(
+    "<empty>",
+    "Reverse.*",
+    "app.*",
+    "res.*",
+    "prod.*",
+    "config.*",
+  )
+
+  val settings: Seq[Def.Setting[_ >: String with Double with Boolean]] = Seq(
+    // Semicolon-separated list of regexs matching classes to exclude
+    ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(";"),
+    ScoverageKeys.coverageMinimumStmtTotal := 80,
+    ScoverageKeys.coverageFailOnMinimum := true,
+    ScoverageKeys.coverageHighlighting := true
+  )
+}

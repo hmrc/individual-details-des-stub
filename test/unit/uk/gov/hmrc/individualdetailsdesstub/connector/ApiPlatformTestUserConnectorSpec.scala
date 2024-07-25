@@ -19,7 +19,6 @@ package unit.uk.gov.hmrc.individualdetailsdesstub.connector
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
-import java.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Nino, SaUtr}
@@ -30,6 +29,7 @@ import uk.gov.hmrc.individualdetailsdesstub.http.HttpClientOps
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import unit.uk.gov.hmrc.individualdetailsdesstub.util.utils.SpecBase
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 class ApiPlatformTestUserConnectorSpec extends SpecBase with BeforeAndAfterEach {

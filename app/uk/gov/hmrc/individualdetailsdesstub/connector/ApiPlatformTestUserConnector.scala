@@ -18,7 +18,8 @@ package uk.gov.hmrc.individualdetailsdesstub.connector
 
 import com.google.inject.{Inject, Singleton}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, NotFoundException}
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, UpstreamErrorResponse}
 import uk.gov.hmrc.individualdetailsdesstub.domain.{NinoNoSuffix, TestIndividual, TestUserNotFoundException}
 import uk.gov.hmrc.individualdetailsdesstub.http.HttpClientOps
 import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters.formatTestUser
@@ -42,6 +43,6 @@ class ApiPlatformTestUserConnector @Inject()(servicesConfig: ServicesConfig, htt
 
   private def getTestIndividual(url: String)(implicit hc: HeaderCarrier) =
     http.GET[TestIndividual](url) recover {
-      case _: NotFoundException => throw new TestUserNotFoundException
+      case ex: UpstreamErrorResponse if ex.statusCode == 404 => throw new TestUserNotFoundException
     }
 }

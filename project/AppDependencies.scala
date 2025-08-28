@@ -2,18 +2,16 @@ import sbt._
 
 object AppDependencies {
 
-  val hmrcBootstrapVersion = "8.4.0"
+  val hmrcBootstrapVersion = "10.1.0"
   val playVersion = "play-30"
 
   val compile = Seq(
     "uk.gov.hmrc" %% s"bootstrap-backend-$playVersion" % hmrcBootstrapVersion,
-    "uk.gov.hmrc" %% s"domain-$playVersion"            % "9.0.0"
+    "uk.gov.hmrc" %% s"domain-$playVersion"            % "13.0.0"
   )
 
   val test = Seq(
-    "uk.gov.hmrc"           %% s"bootstrap-test-$playVersion" % hmrcBootstrapVersion % "test, it",
-    "org.scalaj"            %% "scalaj-http"                  % "2.4.2"              % "test, it",
-    "org.mockito"            % "mockito-scala_2.13"           % "1.17.30"            % "test, it"
-
+    "uk.gov.hmrc"       %% s"bootstrap-test-$playVersion" % hmrcBootstrapVersion % "test, it",
+    "org.playframework" %% "play-ahc-ws-standalone"       % "3.0.7"              % "test, it"
   )
 }

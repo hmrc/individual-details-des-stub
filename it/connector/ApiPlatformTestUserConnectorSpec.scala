@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.individualdetailsdesstub.connector
+package connector
 
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatest.BeforeAndAfterEach
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnector
-import uk.gov.hmrc.individualdetailsdesstub.domain._
-import uk.gov.hmrc.individualdetailsdesstub.http.HttpClientOps
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import unit.uk.gov.hmrc.individualdetailsdesstub.util.utils.SpecBase
+import uk.gov.hmrc.individualdetailsdesstub.domain.*
+import util.SpecBase
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
@@ -35,48 +31,37 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 class ApiPlatformTestUserConnectorSpec extends SpecBase with BeforeAndAfterEach {
 
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
-  val stubPort = sys.env.getOrElse("WIREMOCK", "11121").toInt
-  val stubHost = "localhost"
-  val wireMockServer = new WireMockServer(wireMockConfig().port(stubPort))
   val nino = Nino("AB123456A")
   val testUser = TestIndividual(
     "945350439195",
     Some(SaUtr("12345")),
     Some(nino),
-    TestUserIndividualDetails("Adrian", "Adams", LocalDate.parse("1970-03-21"), TestUserAddress("1 Abbey Road", "Aberdeen")))
-
-  val testServicesConfig = fakeApplication.injector.instanceOf[ServicesConfig]
-  val testHttpClient = fakeApplication.injector.instanceOf[HttpClientOps]
+    TestUserIndividualDetails(
+      "Adrian",
+      "Adams",
+      LocalDate.parse("1970-03-21"),
+      TestUserAddress("1 Abbey Road", "Aberdeen")
+    )
+  )
 
   trait Setup {
     implicit val hc: HeaderCarrier = HeaderCarrier()
-
-    val underTest = new ApiPlatformTestUserConnector(testServicesConfig, testHttpClient) {
-      override val serviceUrl = "http://localhost:11121"
-    }
-  }
-
-  override def beforeEach(): Unit = {
-    wireMockServer.start()
-    configureFor(stubHost, stubPort)
-  }
-
-  override def afterEach(): Unit = {
-    wireMockServer.stop()
+    val underTest: ApiPlatformTestUserConnector = fakeApplication().injector.instanceOf[ApiPlatformTestUserConnector]
   }
 
   "get by nino" should {
 
     "retrieve a test user for a valid NINO" in new Setup {
-      stubFor(get(urlEqualTo(s"/individuals/nino/${nino.nino}")).
-        willReturn(aResponse().withStatus(OK).withBody(responsePayload)))
+      stubFor(
+        get(urlEqualTo(s"/individuals/nino/${nino.nino}"))
+          .willReturn(aResponse().withStatus(OK).withBody(responsePayload))
+      )
 
       await(underTest.getByNino(nino)) shouldBe testUser
     }
 
     "throw test user not found exception if test user cannot be found" in new Setup {
-      stubFor(get(urlEqualTo(s"/individuals/nino/${nino.nino}")).
-        willReturn(aResponse().withStatus(NOT_FOUND)))
+      stubFor(get(urlEqualTo(s"/individuals/nino/${nino.nino}")).willReturn(aResponse().withStatus(NOT_FOUND)))
 
       intercept[TestUserNotFoundException](await(underTest.getByNino(nino)))
     }
@@ -87,15 +72,18 @@ class ApiPlatformTestUserConnectorSpec extends SpecBase with BeforeAndAfterEach 
     val shortNino = NinoNoSuffix("AB123456")
 
     "retrieve a test user for a valid short NINO" in new Setup {
-      stubFor(get(urlEqualTo(s"/individuals/shortnino/${shortNino.nino}")).
-        willReturn(aResponse().withStatus(OK).withBody(responsePayload)))
+      stubFor(
+        get(urlEqualTo(s"/individuals/shortnino/${shortNino.nino}"))
+          .willReturn(aResponse().withStatus(OK).withBody(responsePayload))
+      )
 
       await(underTest.getByShortNino(shortNino)) shouldBe testUser
     }
 
     "throw test user not found exception if test user cannot be found" in new Setup {
-      stubFor(get(urlEqualTo(s"/individuals/shortnino/${shortNino.nino}")).
-        willReturn(aResponse().withStatus(NOT_FOUND)))
+      stubFor(
+        get(urlEqualTo(s"/individuals/shortnino/${shortNino.nino}")).willReturn(aResponse().withStatus(NOT_FOUND))
+      )
 
       intercept[TestUserNotFoundException](await(underTest.getByShortNino(shortNino)))
     }
@@ -106,15 +94,16 @@ class ApiPlatformTestUserConnectorSpec extends SpecBase with BeforeAndAfterEach 
     val saUtr = SaUtr("1234567890")
 
     "retrieve a test user for a valid SA UTR" in new Setup {
-      stubFor(get(urlEqualTo(s"/individuals/sautr/${saUtr.utr}")).
-        willReturn(aResponse().withStatus(OK).withBody(responsePayload)))
+      stubFor(
+        get(urlEqualTo(s"/individuals/sautr/${saUtr.utr}"))
+          .willReturn(aResponse().withStatus(OK).withBody(responsePayload))
+      )
 
       await(underTest.getBySaUtr(saUtr)) shouldBe testUser
     }
 
     "throw test user not found exception if test user cannot be found" in new Setup {
-      stubFor(get(urlEqualTo(s"/individuals/sautr/${saUtr.utr}")).
-        willReturn(aResponse().withStatus(NOT_FOUND)))
+      stubFor(get(urlEqualTo(s"/individuals/sautr/${saUtr.utr}")).willReturn(aResponse().withStatus(NOT_FOUND)))
 
       intercept[TestUserNotFoundException](await(underTest.getBySaUtr(saUtr)))
     }

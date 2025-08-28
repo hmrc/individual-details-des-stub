@@ -16,21 +16,22 @@
 
 package unit.uk.gov.hmrc.individualdetailsdesstub.service
 
-import java.time.LocalDate
-import org.mockito.MockitoSugar
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIds}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.individualdetailsdesstub.connector.ApiPlatformTestUserConnector
-import uk.gov.hmrc.individualdetailsdesstub.domain._
+import uk.gov.hmrc.individualdetailsdesstub.domain.*
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
 import unit.uk.gov.hmrc.individualdetailsdesstub.util.UnitSpec
 
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
 
-  implicit val ec : ExecutionContext = ExecutionContext.global
+  implicit val ec: ExecutionContext = ExecutionContext.global
   private val ninoNoSuffix = NinoNoSuffix("AB123456")
   private val nino = Nino("AB123456A")
   private val saUtr = SaUtr("12345")
@@ -39,7 +40,13 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
     "945350439195",
     Some(saUtr),
     Some(nino),
-    TestUserIndividualDetails("Adrian", "Adams", LocalDate.parse("1970-03-21"), TestUserAddress("1 Abbey Road", "Aberdeen")))
+    TestUserIndividualDetails(
+      "Adrian",
+      "Adams",
+      LocalDate.parse("1970-03-21"),
+      TestUserAddress("1 Abbey Road", "Aberdeen")
+    )
+  )
 
   val individual = Individual(
     ninoNoSuffix = ninoNoSuffix.nino,
@@ -48,17 +55,18 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
     address = IndividualAddress(testUser.individualDetails.address.line1, testUser.individualDetails.address.line2)
   )
 
-  val format = DateTimeFormatter.ofPattern("ddMMyyyy")
+  val format: DateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyyyy")
 
   val cidPerson = CidPerson(
     CidNames(CidName(testUser.individualDetails.firstName, testUser.individualDetails.lastName)),
     TaxIds(nino, saUtr),
-    testUser.individualDetails.dateOfBirth.format(format))
+    testUser.individualDetails.dateOfBirth.format(format)
+  )
 
   trait Setup {
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    val mockTestUserConnector = mock[ApiPlatformTestUserConnector]
+    val mockTestUserConnector: ApiPlatformTestUserConnector = mock[ApiPlatformTestUserConnector]
     val individualsService = new IndividualsService(mockTestUserConnector)
 
   }
@@ -66,13 +74,13 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
   "Individuals service get by NINO function" should {
 
     "return a Cid Person for a matched NINO" in new Setup {
-      when(mockTestUserConnector.getByNino(nino)(hc)).thenReturn(testUser)
-      val result = await(individualsService.getCidPersonByNino(nino))
+      when(mockTestUserConnector.getByNino(nino)(using hc)).thenReturn(Future.successful(testUser))
+      val result: CidPerson = await(individualsService.getCidPersonByNino(nino))
       result shouldBe cidPerson
     }
 
     "propagate a test user not found exception" in new Setup {
-      when(mockTestUserConnector.getByNino(nino)(hc)).thenThrow(new TestUserNotFoundException)
+      when(mockTestUserConnector.getByNino(nino)(using hc)).thenThrow(new TestUserNotFoundException)
       intercept[TestUserNotFoundException](await(individualsService.getCidPersonByNino(nino)))
     }
   }
@@ -80,13 +88,13 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
   "Individuals service get by SHORTNINO function" should {
 
     "return an Individual for a matched SHORTNINO" in new Setup {
-      when(mockTestUserConnector.getByShortNino(ninoNoSuffix)(hc)).thenReturn(testUser)
-      val result = await(individualsService.getIndividualByShortNino(ninoNoSuffix))
+      when(mockTestUserConnector.getByShortNino(ninoNoSuffix)(using hc)).thenReturn(Future.successful(testUser))
+      val result: Individual = await(individualsService.getIndividualByShortNino(ninoNoSuffix))
       result shouldBe individual
     }
 
     "propagate a test user not found exception" in new Setup {
-      when(mockTestUserConnector.getByShortNino(ninoNoSuffix)(hc)).thenThrow(new TestUserNotFoundException)
+      when(mockTestUserConnector.getByShortNino(ninoNoSuffix)(using hc)).thenThrow(new TestUserNotFoundException)
       intercept[TestUserNotFoundException](await(individualsService.getIndividualByShortNino(ninoNoSuffix)))
     }
   }
@@ -94,13 +102,13 @@ class IndividualsServiceSpec extends UnitSpec with MockitoSugar {
   "Individuals service get by SA UTR function" should {
 
     "return a Cid Person for a matched SA UTR" in new Setup {
-      when(mockTestUserConnector.getBySaUtr(saUtr)(hc)).thenReturn(testUser)
-      val result = await(individualsService.getCidPersonBySaUtr(saUtr))
+      when(mockTestUserConnector.getBySaUtr(saUtr)(using hc)).thenReturn(Future.successful(testUser))
+      val result: CidPerson = await(individualsService.getCidPersonBySaUtr(saUtr))
       result shouldBe cidPerson
     }
 
     "propagate a test user not found exception" in new Setup {
-      when(mockTestUserConnector.getBySaUtr(saUtr)(hc)).thenThrow(new TestUserNotFoundException)
+      when(mockTestUserConnector.getBySaUtr(saUtr)(using hc)).thenThrow(new TestUserNotFoundException)
       intercept[TestUserNotFoundException](await(individualsService.getCidPersonBySaUtr(saUtr)))
     }
   }

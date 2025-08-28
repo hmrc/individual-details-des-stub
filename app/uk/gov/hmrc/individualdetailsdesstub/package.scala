@@ -20,25 +20,27 @@ import play.api.mvc.{PathBindable, QueryStringBindable}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.individualdetailsdesstub.domain.NinoNoSuffix
 
+import scala.reflect.ClassTag
+
 object NinoNoSuffixBinder extends SimpleObjectBinder[NinoNoSuffix](NinoNoSuffix.apply, _.value)
 
 package object Binders {
 
   implicit val ninoQueryStringBinder: QueryStringBindable[Nino] = new QueryStringBindable[Nino] {
-    def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Nino]] = try {
+    def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Nino]] = try
       params.get(key).flatMap(_.headOption).map(value => Right(Nino(value)))
-    } catch {
-      case e: Throwable => Some(Left(s"Cannot parse parameter '$key' with parameters '$params' as 'NINO'"))
+    catch {
+      case _: Throwable => Some(Left(s"Cannot parse parameter '$key' with parameters '$params' as 'NINO'"))
     }
 
     def unbind(key: String, value: Nino): String = QueryStringBindable.bindableString.unbind(key, value.nino)
   }
 
   implicit val saUtrQueryStringBinder: QueryStringBindable[SaUtr] = new QueryStringBindable[SaUtr] {
-    def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SaUtr]] = try {
+    def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SaUtr]] = try
       params.get(key).flatMap(_.headOption).map(value => Right(SaUtr(value)))
-    } catch {
-      case e: Throwable => Some(Left(s"Cannot parse parameter '$key' with parameters '$params' as 'SA UTR'"))
+    catch {
+      case _: Throwable => Some(Left(s"Cannot parse parameter '$key' with parameters '$params' as 'SA UTR'"))
     }
 
     def unbind(key: String, value: SaUtr): String = QueryStringBindable.bindableString.unbind(key, value.utr)
@@ -48,11 +50,12 @@ package object Binders {
 
 }
 
-class SimpleObjectBinder[T](bind: String => T, unbind: T => String)(implicit m: Manifest[T]) extends PathBindable[T] {
-  override def bind(key: String, value: String): Either[String, T] = try {
+class SimpleObjectBinder[T](bind: String => T, unbind: T => String)(implicit ct: ClassTag[T]) extends PathBindable[T] {
+  override def bind(key: String, value: String): Either[String, T] = try
     Right(bind(value))
-  } catch {
-    case e: Throwable => Left(s"Cannot parse parameter '$key' with value '$value' as '${m.runtimeClass.getSimpleName}'")
+  catch {
+    case _: Throwable =>
+      Left(s"Cannot parse parameter '$key' with value '$value' as '${ct.runtimeClass.getSimpleName}'")
   }
 
   def unbind(key: String, value: T): String = unbind(value)

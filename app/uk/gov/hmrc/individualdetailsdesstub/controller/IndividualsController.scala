@@ -31,29 +31,30 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future.successful
 
 @Singleton
-class IndividualsController @Inject()(individualsService: IndividualsService, cc: ControllerComponents)(implicit ec: ExecutionContext)
-  extends BackendController(cc)
-    with Logging {
+class IndividualsController @Inject() (individualsService: IndividualsService, cc: ControllerComponents)(implicit
+  ec: ExecutionContext
+) extends BackendController(cc) with Logging {
 
   def findIndividual(ninoNoSuffix: NinoNoSuffix): Action[AnyContent] = Action.async { implicit request =>
-    individualsService.getIndividualByShortNino(ninoNoSuffix) map (individual => Ok(toJson(OpenidIndividual(individual)))) recover recovery
+    individualsService.getIndividualByShortNino(ninoNoSuffix) map (individual =>
+      Ok(toJson(OpenidIndividual(individual)))
+    ) recover recovery
   }
 
-  def findCidPerson(maybeNino: Option[Nino], maybeSaUtr: Option[SaUtr]): Action[AnyContent] = Action.async { implicit request =>
-    (maybeNino, maybeSaUtr) match {
-      case (Some(nino), _) => findCidPerson(nino)
-      case (_, Some(saUtr)) => findCidPerson(saUtr)
-      case (None, None) => successful(ErrorBadRequest("sautr or nino is required").toHttpResponse)
-    }
+  def findCidPerson(maybeNino: Option[Nino], maybeSaUtr: Option[SaUtr]): Action[AnyContent] = Action.async {
+    implicit request =>
+      (maybeNino, maybeSaUtr) match {
+        case (Some(nino), _)  => findCidPerson(nino)
+        case (_, Some(saUtr)) => findCidPerson(saUtr)
+        case (None, None)     => successful(ErrorBadRequest("sautr or nino is required").toHttpResponse)
+      }
   }
 
-  private def findCidPerson(saUtr: SaUtr)(implicit hc: HeaderCarrier) = {
+  private def findCidPerson(saUtr: SaUtr)(implicit hc: HeaderCarrier) =
     individualsService.getCidPersonBySaUtr(saUtr) map (cidPerson => Ok(toJson(Seq(cidPerson)))) recover recovery
-  }
 
-  private def findCidPerson(nino: Nino)(implicit hc: HeaderCarrier) = {
+  private def findCidPerson(nino: Nino)(implicit hc: HeaderCarrier) =
     individualsService.getCidPersonByNino(nino) map (cidPerson => Ok(toJson(Seq(cidPerson)))) recover recovery
-  }
 
   private val recovery: PartialFunction[Throwable, Result] = {
     case e: TestUserNotFoundException => ErrorNotFound(e.getMessage).toHttpResponse

@@ -25,16 +25,17 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class IndividualsService @Inject()(apiPlatformTestUserConnector: ApiPlatformTestUserConnector)(implicit ec: ExecutionContext) {
+class IndividualsService @Inject() (apiPlatformTestUserConnector: ApiPlatformTestUserConnector)(implicit
+  ec: ExecutionContext
+) {
 
   def getIndividualByShortNino(shortNino: NinoNoSuffix)(implicit hc: HeaderCarrier): Future[Individual] =
     apiPlatformTestUserConnector.getByShortNino(shortNino) map (Individual(shortNino, _))
 
   def getCidPersonBySaUtr(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[CidPerson] =
-    apiPlatformTestUserConnector.getBySaUtr(saUtr) map (CidPerson(saUtr, _))
+    apiPlatformTestUserConnector.getBySaUtr(saUtr) map (CidPerson(_))
 
-  def getCidPersonByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[CidPerson] = {
-    apiPlatformTestUserConnector.getByNino(nino) map (CidPerson(nino, _))
-  }
+  def getCidPersonByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[CidPerson] =
+    apiPlatformTestUserConnector.getByNino(nino) map (CidPerson(_))
 
 }

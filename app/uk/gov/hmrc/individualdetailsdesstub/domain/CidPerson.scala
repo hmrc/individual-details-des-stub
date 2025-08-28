@@ -31,17 +31,7 @@ case class CidPerson(name: CidNames, ids: TaxIds, dateOfBirth: String)
 object CidPerson {
 
   private val format = DateTimeFormatter.ofPattern("ddMMyyyy")
-  def apply(nino: Nino, testUser: TestIndividual): CidPerson = {
-    val ids: Seq[TaxIdWithName] = Seq(testUser.nino, testUser.saUtr) flatten
-
-    CidPerson(
-      CidNames(CidName(testUser.individualDetails.firstName, testUser.individualDetails.lastName)),
-      TaxIds(ids.toSet),
-      testUser.individualDetails.dateOfBirth.format(format)
-    )
-  }
-
-  def apply(saUtr: SaUtr, testUser: TestIndividual): CidPerson = {
+  def apply(testUser: TestIndividual): CidPerson = {
     val ids: Seq[TaxIdWithName] = Seq(testUser.nino, testUser.saUtr) flatten
 
     CidPerson(

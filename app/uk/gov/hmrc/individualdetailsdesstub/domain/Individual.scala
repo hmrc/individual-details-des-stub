@@ -18,31 +18,42 @@ package uk.gov.hmrc.individualdetailsdesstub.domain
 
 import java.time.LocalDate
 
-case class IndividualName(firstForenameOrInitial: String,
-                          surname: String,
-                          secondForenameOrInitial: Option[String] = None)
+case class IndividualName(
+  firstForenameOrInitial: String,
+  surname: String,
+  secondForenameOrInitial: Option[String] = None
+)
 
-case class IndividualAddress(line1: String,
-                             line2: String,
-                             line3: Option[String] = None,
-                             line4: Option[String] = None,
-                             postcode: Option[String] = None,
-                             countryCode: Option[Int] = None)
+case class IndividualAddress(
+  line1: String,
+  line2: String,
+  line3: Option[String] = None,
+  line4: Option[String] = None,
+  postcode: Option[String] = None,
+  countryCode: Option[Int] = None
+)
 
 case class Individual(ninoNoSuffix: String, name: IndividualName, dateOfBirth: LocalDate, address: IndividualAddress)
 
 object Individual {
 
-  def apply(ninoNoSuffix: NinoNoSuffix, testUser: TestIndividual): Individual = {
-    Individual(ninoNoSuffix.nino,
+  def apply(ninoNoSuffix: NinoNoSuffix, testUser: TestIndividual): Individual =
+    Individual(
+      ninoNoSuffix.nino,
       IndividualName(testUser.individualDetails.firstName, testUser.individualDetails.lastName),
       testUser.individualDetails.dateOfBirth,
-      IndividualAddress(testUser.individualDetails.address.line1, testUser.individualDetails.address.line2))
-  }
+      IndividualAddress(testUser.individualDetails.address.line1, testUser.individualDetails.address.line2)
+    )
 }
 
-case class OpenidIndividual(ninoNoSuffix: String, name: IndividualName, dateOfBirth: LocalDate, address: IndividualAddress)
+case class OpenidIndividual(
+  ninoNoSuffix: String,
+  name: IndividualName,
+  dateOfBirth: LocalDate,
+  address: IndividualAddress
+)
 
 object OpenidIndividual {
-  def apply(individual: Individual): OpenidIndividual = OpenidIndividual(individual.ninoNoSuffix, individual.name, individual.dateOfBirth, individual.address)
+  def apply(individual: Individual): OpenidIndividual =
+    OpenidIndividual(individual.ninoNoSuffix, individual.name, individual.dateOfBirth, individual.address)
 }

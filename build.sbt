@@ -14,26 +14,35 @@
  * limitations under the License.
  */
 
-import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
-
 val appName = "individual-details-des-stub"
 
 lazy val ItTest = config("it") extend Test
+lazy val ComponentTest = config("component") extend Test
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .settings(
     majorVersion := 0,
-    scalaVersion := "2.13.12",
+    scalaVersion := "3.7.1",
     onLoadMessage := "",
+    scalafmtOnCompile := true,
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     scalacOptions += "-Wconf:src=routes/.*:s",
-    routesImport ++= Seq("uk.gov.hmrc.domain._", "uk.gov.hmrc.individualdetailsdesstub.domain._", "uk.gov.hmrc.individualdetailsdesstub.Binders._"),
-    // Minimal test logging config
-    testOptions -= Tests.Argument("-o", "-u", "target/int-test-reports", "-h", "target/int-test-reports/html-report"),
-    testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oNCHPQR", "-u", "target/int-test-reports", "-h", "target/int-test-reports/html-report")
+    scalacOptions += "-Wconf:msg=Flag.*repeatedly:s",
+    routesImport ++= Seq(
+      "uk.gov.hmrc.domain._",
+      "uk.gov.hmrc.individualdetailsdesstub.domain._",
+      "uk.gov.hmrc.individualdetailsdesstub.Binders._"
+    )
   )
-  .settings(CodeCoverageSettings.settings: _*)
+  .settings(CodeCoverageSettings.settings*)
   .configs(ItTest)
-  .settings(inConfig(ItTest)(Defaults.testSettings) *)
-  .settings(resolvers += Resolver.jcenterRepo)
+  .settings(inConfig(ItTest)(Defaults.testSettings)*)
+  .settings(
+    ItTest / unmanagedSourceDirectories := Seq((ItTest / baseDirectory).value / "it")
+  )
+  .configs(ComponentTest)
+  .settings(inConfig(ComponentTest)(Defaults.testSettings)*)
+  .settings(
+    ComponentTest / unmanagedSourceDirectories := Seq((ComponentTest / baseDirectory).value / "component")
+  )

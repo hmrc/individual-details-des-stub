@@ -16,23 +16,21 @@
 
 package uk.gov.hmrc.individualdetailsdesstub.domain
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
-import play.api.mvc.Results
-import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters._
+import play.api.mvc.{Result, Results}
+import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters.*
 
-sealed abstract class ErrorResponse(
-                                     val httpStatusCode: Int,
-                                     val errorCode: String,
-                                     val message: String) {
+sealed abstract class ErrorResponse(val httpStatusCode: Int, val errorCode: String, val message: String) {
 
-  def toHttpResponse = Results.Status(httpStatusCode)(Json.toJson(this))
+  def toHttpResponse: Result = Results.Status(httpStatusCode)(Json.toJson(this))
 }
 
 case class ErrorBadRequest(errorMessage: String) extends ErrorResponse(BAD_REQUEST, "BAD_REQUEST", errorMessage)
 
 case class ErrorNotFound(errorMessage: String) extends ErrorResponse(NOT_FOUND, "NOT_FOUND", errorMessage)
 
-case object ErrorInternalServer extends ErrorResponse(INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "Internal server error")
+case object ErrorInternalServer
+    extends ErrorResponse(INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "Internal server error")
 
 class TestUserNotFoundException extends RuntimeException("Individual not found")

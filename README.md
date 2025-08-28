@@ -9,9 +9,9 @@ It is a shared Stub for both openid-connect-userinfo and citizen-details.
 
 ### Running tests
 
-Unit, integration and component tests can be run with the following:
+All tests can be run with coverage report using the following:
 
-    sbt test it:test component:test
+     sbt clean compile coverage test it:test component:test coverageReport
 
 ### License
 

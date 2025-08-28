@@ -17,8 +17,9 @@
 package component.uk.gov.hmrc.individualdetailsdesstub.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlPathEqualTo}
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 
-import java.time.LocalDate._
+import java.time.LocalDate.*
 import play.api.http.Status
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.individualdetailsdesstub.domain.{CidPerson, Individual, NinoNoSuffix}
@@ -27,14 +28,16 @@ import java.time.format.DateTimeFormatter
 
 object ApiPlatformTestUserStub extends MockHost(22001) {
 
-  val format = DateTimeFormatter.ofPattern("ddMMyyyy")
-  val outFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  val format: DateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyyyy")
+  val outFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-  def getByNinoReturnsTestUserDetails(nino: Nino, cidPerson: CidPerson) = {
-    mock.register(get(urlPathEqualTo(s"/individuals/nino/$nino"))
-      .willReturn(aResponse().withStatus(Status.OK)
-        .withBody(
-          s"""{
+  def getByNinoReturnsTestUserDetails(nino: Nino, cidPerson: CidPerson): StubMapping =
+    mock.register(
+      get(urlPathEqualTo(s"/individuals/nino/$nino"))
+        .willReturn(
+          aResponse()
+            .withStatus(Status.OK)
+            .withBody(s"""{
                "userId": "945350439195",
                "password": "bLohysg8utsa",
                "saUtr": "12345",
@@ -48,19 +51,23 @@ object ApiPlatformTestUserStub extends MockHost(22001) {
                    "line2": "Aberdeen"
                  }
                }
-             }""")))
-  }
+             }""")
+        )
+    )
 
-  def getByNinoReturnsNoTestUser(nino: Nino) = {
-    mock.register(get(urlPathEqualTo(s"/individuals/nino/$nino"))
-      .willReturn(aResponse().withStatus(Status.NOT_FOUND)))
-  }
+  def getByNinoReturnsNoTestUser(nino: Nino): StubMapping =
+    mock.register(
+      get(urlPathEqualTo(s"/individuals/nino/$nino"))
+        .willReturn(aResponse().withStatus(Status.NOT_FOUND))
+    )
 
-  def getBySaUtrReturnsTestUserDetails(saUtr: SaUtr, cidPerson: CidPerson) = {
-    mock.register(get(urlPathEqualTo(s"/individuals/sautr/$saUtr"))
-      .willReturn(aResponse().withStatus(Status.OK)
-        .withBody(
-          s"""{
+  def getBySaUtrReturnsTestUserDetails(saUtr: SaUtr, cidPerson: CidPerson): StubMapping =
+    mock.register(
+      get(urlPathEqualTo(s"/individuals/sautr/$saUtr"))
+        .willReturn(
+          aResponse()
+            .withStatus(Status.OK)
+            .withBody(s"""{
                "userId": "945350439195",
                "password": "bLohysg8utsa",
                "saUtr": "${saUtr.utr}",
@@ -74,19 +81,23 @@ object ApiPlatformTestUserStub extends MockHost(22001) {
                    "line2": "Aberdeen"
                  }
                }
-             }""")))
-  }
+             }""")
+        )
+    )
 
-  def getBySaUtrReturnsNoTestUser(saUtr: SaUtr) = {
-    mock.register(get(urlPathEqualTo(s"/individuals/sautr/$saUtr"))
-      .willReturn(aResponse().withStatus(Status.NOT_FOUND)))
-  }
+  def getBySaUtrReturnsNoTestUser(saUtr: SaUtr): StubMapping =
+    mock.register(
+      get(urlPathEqualTo(s"/individuals/sautr/$saUtr"))
+        .willReturn(aResponse().withStatus(Status.NOT_FOUND))
+    )
 
-  def getByShortNinoReturnsTestUserDetails(nino: Nino, individual: Individual) = {
-    mock.register(get(urlPathEqualTo(s"/individuals/shortnino/${individual.ninoNoSuffix}"))
-      .willReturn(aResponse().withStatus(Status.OK)
-        .withBody(
-          s"""{
+  def getByShortNinoReturnsTestUserDetails(nino: Nino, individual: Individual): StubMapping =
+    mock.register(
+      get(urlPathEqualTo(s"/individuals/shortnino/${individual.ninoNoSuffix}"))
+        .willReturn(
+          aResponse()
+            .withStatus(Status.OK)
+            .withBody(s"""{
                "userId": "945350439195",
                "password": "bLohysg8utsa",
                "saUtr": "12345",
@@ -100,13 +111,14 @@ object ApiPlatformTestUserStub extends MockHost(22001) {
                    "line2": "${individual.address.line2}"
                  }
                }
-             }""")))
+             }""")
+        )
+    )
 
-  }
+  def getByShortNinoReturnsNoTestUser(ninoNoSuffix: NinoNoSuffix): StubMapping =
+    mock.register(
+      get(urlPathEqualTo(s"/individuals/shortnino/${ninoNoSuffix.nino}"))
+        .willReturn(aResponse().withStatus(Status.NOT_FOUND))
+    )
 
-  def getByShortNinoReturnsNoTestUser(ninoNoSuffix: NinoNoSuffix) = {
-    mock.register(get(urlPathEqualTo(s"/individuals/shortnino/${ninoNoSuffix.nino}"))
-      .willReturn(aResponse().withStatus(Status.NOT_FOUND)))
-
-  }
 }

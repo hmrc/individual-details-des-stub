@@ -31,7 +31,7 @@ object NinoNoSuffix extends (String => NinoNoSuffix) {
   implicit val ninoWrite: Writes[NinoNoSuffix] = new SimpleObjectWrites[NinoNoSuffix](_.value)
   implicit val ninoRead: Reads[NinoNoSuffix] = new SimpleObjectReads[NinoNoSuffix]("nino-no-suffix", NinoNoSuffix.apply)
 
-  def isValid(nino: String) = nino != null && Nino.isValid(nino + "A")
+  private def isValid(nino: String) = nino != null && Nino.isValid(nino + "A")
 
   def apply(nino: Nino): NinoNoSuffix = NinoNoSuffix(nino.nino.substring(0, nino.nino.length - 1))
 }

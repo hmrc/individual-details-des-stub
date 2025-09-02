@@ -29,14 +29,14 @@ object JsonFormatters {
   implicit val individualJsonFormat: OFormat[Individual] = Json.format[Individual]
 
   implicit val formatTestUserAddress: OFormat[TestUserAddress] = Json.format[TestUserAddress]
-  implicit val formatTestUserIndividualDetails: OFormat[TestUserIndividualDetails] = Json.format[TestUserIndividualDetails]
+  implicit val formatTestUserIndividualDetails: OFormat[TestUserIndividualDetails] =
+    Json.format[TestUserIndividualDetails]
   implicit val formatTestUser: OFormat[TestIndividual] = Json.format[TestIndividual]
 
-  implicit val errorResponseWrites: Writes[ErrorResponse] = new Writes[ErrorResponse] {
-    def writes(e: ErrorResponse): JsValue = Json.obj("code" -> e.errorCode, "message" -> e.message)
-  }
+  implicit val errorResponseWrites: Writes[ErrorResponse] = (e: ErrorResponse) =>
+    Json.obj("code" -> e.errorCode, "message" -> e.message)
 
-  implicit val taxIdsFormat: Format[TaxIds] = TaxIds.format(TaxIds.defaultSerialisableIds: _*)
+  implicit val taxIdsFormat: Format[TaxIds] = TaxIds.format(using TaxIds.defaultSerialisableIds*)
   implicit val CidNameJsonFormat: OFormat[CidName] = Json.format[CidName]
   implicit val CidNamesJsonFormat: OFormat[CidNames] = Json.format[CidNames]
   implicit val CidPersonJsonFormat: OFormat[CidPerson] = Json.format[CidPerson]
@@ -46,5 +46,5 @@ object JsonFormatters {
       (JsPath \ "names" \ "1").write[IndividualName] and
       (JsPath \ "dateOfBirth").write[LocalDate] and
       (JsPath \ "addresses" \ "1").write[IndividualAddress]
-    )(unlift(OpenidIndividual.unapply))
+  )(o => Tuple.fromProductTyped(o))
 }

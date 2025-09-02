@@ -17,10 +17,9 @@
 package unit.uk.gov.hmrc.individualdetailsdesstub.controller
 
 import org.apache.pekko.stream.Materializer
-
-import java.time.LocalDate
 import org.mockito.ArgumentMatchers.{any, refEq}
-import org.mockito.MockitoSugar
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.OK
@@ -29,31 +28,32 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIds}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.individualdetailsdesstub.domain._
+import uk.gov.hmrc.individualdetailsdesstub.domain.*
 import uk.gov.hmrc.individualdetailsdesstub.service.IndividualsService
 import unit.uk.gov.hmrc.individualdetailsdesstub.util.UnitSpec
 
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future._
+import scala.concurrent.Future.*
 
 class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
   private val individualsService = mock[IndividualsService]
 
-  val outFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  val outFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-  implicit val ec : ExecutionContext = ExecutionContext.global
-  override lazy val fakeApplication: Application = new GuiceApplicationBuilder()
+  implicit val ec: ExecutionContext = ExecutionContext.global
+  override def fakeApplication(): Application = new GuiceApplicationBuilder()
     .configure("metrics.enabled" -> "false")
     .configure("auditing.enabled" -> "false")
     .overrides(bind[IndividualsService].toInstance(individualsService))
     .build()
 
-  implicit val materializer: Materializer = fakeApplication.materializer
+  implicit val materializer: Materializer = fakeApplication().materializer
 
   val nino = Nino("AB123456A")
   val ninoNoSuffix = NinoNoSuffix("AB123456")
@@ -62,7 +62,8 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
     ninoNoSuffix = ninoNoSuffix.nino,
     name = IndividualName("John", "Doe", Some("Peter")),
     dateOfBirth = LocalDate.parse("1980-01-10"),
-    address = IndividualAddress("1 Stoke Ave", "West district", Some("Cardiff"), Some("Wales"), Some("SW11PT"), Some(1)))
+    address = IndividualAddress("1 Stoke Ave", "West district", Some("Cardiff"), Some("Wales"), Some("SW11PT"), Some(1))
+  )
 
   val cidPerson = CidPerson(CidNames(CidName("John", "Doe")), TaxIds(nino), "10011980")
 
@@ -70,7 +71,8 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
 
   "find Individual by SHORTNINO" should {
     "return an openid individual and a http 200 (ok) when a test user exists for a given SHORTNINO" in {
-      when(individualsService.getIndividualByShortNino(refEq(ninoNoSuffix))(any[HeaderCarrier])).thenReturn(successful(individual))
+      when(individualsService.getIndividualByShortNino(refEq(ninoNoSuffix))(using any[HeaderCarrier]))
+        .thenReturn(successful(individual))
 
       val result = invoke(GET, s"/pay-as-you-earn/individuals/${ninoNoSuffix.nino}")
 
@@ -98,7 +100,8 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
            |    }
            |  }
            |}
-        """.stripMargin)
+        """.stripMargin
+      )
     }
 
     "return a http 400 (Bad Request) when the SHORTNINO is invalid" in {
@@ -107,7 +110,8 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
     }
 
     "return a 500 (Internal Server Error) when an error occurred" in {
-      when(individualsService.getIndividualByShortNino(refEq(ninoNoSuffix))(any[HeaderCarrier])).thenReturn(failed(new RuntimeException("test error")))
+      when(individualsService.getIndividualByShortNino(refEq(ninoNoSuffix))(using any[HeaderCarrier]))
+        .thenReturn(failed(new RuntimeException("test error")))
 
       val result = invoke(GET, s"/pay-as-you-earn/individuals/${ninoNoSuffix.nino}")
 
@@ -120,13 +124,13 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
     val saUtr = SaUtr("1234567890")
 
     "return an openid individual and a http 200 (ok) when a test user exists for a given SA UTR" in {
-      when(individualsService.getCidPersonBySaUtr(refEq(saUtr))(any[HeaderCarrier])).thenReturn(successful(cidPerson))
+      when(individualsService.getCidPersonBySaUtr(refEq(saUtr))(using any[HeaderCarrier]))
+        .thenReturn(successful(cidPerson))
 
       val result = invoke(GET, s"/matching/find?sautr=${saUtr.utr}")
 
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe Json.parse(
-        s"""
+      jsonBodyOf(result) shouldBe Json.parse(s"""
            [{
               "ids": {
                 "nino": "${cidPerson.ids.nino.get}"
@@ -143,7 +147,8 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
     }
 
     "return a 500 (Internal Server Error) when an error occurred" in {
-      when(individualsService.getCidPersonBySaUtr(refEq(saUtr))(any[HeaderCarrier])).thenReturn(failed(new RuntimeException("test error")))
+      when(individualsService.getCidPersonBySaUtr(refEq(saUtr))(using any[HeaderCarrier]))
+        .thenReturn(failed(new RuntimeException("test error")))
 
       val result = invoke(GET, s"/matching/find?sautr=${saUtr.utr}")
 
@@ -153,7 +158,8 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
 
   "getCidPerson by NINO" should {
     "return a sequence containing the cidPerson a test user exists for a given NINO" in {
-      when(individualsService.getCidPersonByNino(refEq(nino))(any[HeaderCarrier])).thenReturn(successful(cidPerson))
+      when(individualsService.getCidPersonByNino(refEq(nino))(using any[HeaderCarrier]))
+        .thenReturn(successful(cidPerson))
 
       val result = invoke(GET, s"/matching/find?nino=${nino.nino}")
 
@@ -182,7 +188,8 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
     }
 
     "return a 500 (Internal Server Error) when an error occurred" in {
-      when(individualsService.getCidPersonByNino(refEq(nino))(any[HeaderCarrier])).thenReturn(failed(new RuntimeException("test error")))
+      when(individualsService.getCidPersonByNino(refEq(nino))(using any[HeaderCarrier]))
+        .thenReturn(failed(new RuntimeException("test error")))
 
       val result = invoke(GET, s"/matching/find?nino=${nino.nino}")
 
@@ -191,5 +198,5 @@ class IndividualsControllerSpec extends UnitSpec with GuiceOneAppPerSuite with M
   }
 
   private def invoke(httpVerb: String, uriPath: String): Result =
-    await(route(fakeApplication, FakeRequest(GET, uriPath)).get)
+    await(route(fakeApplication(), FakeRequest(httpVerb, uriPath)).get)
 }

@@ -21,14 +21,13 @@ object CodeCoverageSettings {
 
   val excludedPackages: Seq[String] = Seq(
     "<empty>",
-    "Reverse.*",
-    "app.*",
-    "res.*",
-    "prod.*",
-    "config.*",
+    "uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters",
+    ".*.Routes.*",
+    ".*RoutesPrefix.*",
+    "testOnlyDoNotUseInAppConf.*"
   )
 
-  val settings: Seq[Def.Setting[_ >: String with Double with Boolean]] = Seq(
+  val settings: Seq[Def.Setting[? >: String & Double & Boolean]] = Seq(
     // Semicolon-separated list of regexs matching classes to exclude
     ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(";"),
     ScoverageKeys.coverageMinimumStmtTotal := 75,

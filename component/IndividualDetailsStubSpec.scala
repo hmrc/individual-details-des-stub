@@ -17,15 +17,23 @@
 package component.uk.gov.hmrc.individualdetailsdesstub
 
 import component.uk.gov.hmrc.individualdetailsdesstub.stubs.{ApiPlatformTestUserStub, BaseSpec}
+import org.apache.pekko.actor.ActorSystem
+
 import java.time.LocalDate
 import play.api.http.Status
 import play.api.libs.json.Json
-import scalaj.http.Http
 import uk.gov.hmrc.domain.{Nino, SaUtr, TaxIds}
-import uk.gov.hmrc.individualdetailsdesstub.domain._
-import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters._
+import uk.gov.hmrc.individualdetailsdesstub.domain.*
+import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters.*
+import play.api.libs.ws.ahc.StandaloneAhcWSClient
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualDetailsStubSpec extends BaseSpec {
+
+  implicit val actorSystem: ActorSystem = ActorSystem()
+  val wsClient = StandaloneAhcWSClient()
+  implicit val ec: ExecutionContext = ExecutionContext.global
 
   val nino = Nino("AB123456A")
   val ninoNoSuffix = NinoNoSuffix(nino)
@@ -46,11 +54,12 @@ class IndividualDetailsStubSpec extends BaseSpec {
       ApiPlatformTestUserStub.getByShortNinoReturnsTestUserDetails(nino, individual)
 
       When("I retrieve the individual by its SHORTNINO")
-      val result = Http(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").asString
-      result.code shouldBe Status.OK
-
-      Then("The individual is returned in an openid connect DES format")
-      Json.parse(result.body) shouldBe Json.toJson(OpenidIndividual(individual))
+      val result = wsClient.url(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").get()
+      result.map { response =>
+        response.status shouldBe Status.OK
+        Then("The individual is returned in an openid connect DES format")
+        Json.parse(response.body) shouldBe Json.toJson(OpenidIndividual(individual))
+      }
     }
 
     Scenario("Retrieve an individual with a non-existing SHORTNINO") {
@@ -59,11 +68,13 @@ class IndividualDetailsStubSpec extends BaseSpec {
       ApiPlatformTestUserStub.getByShortNinoReturnsNoTestUser(ninoNoSuffix)
 
       When("I try to match the individual by its SHORTNINO")
-      val result = Http(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").asString
+      val result = wsClient.url(s"$serviceUrl/pay-as-you-earn/individuals/${ninoNoSuffix.nino}").get()
 
       Then("A 404 (Not Found) is returned")
-      result.code shouldBe Status.NOT_FOUND
-      Json.parse(result.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
+      result.map { response =>
+        response.status shouldBe Status.NOT_FOUND
+        Json.parse(response.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
+      }
     }
   }
 
@@ -82,11 +93,13 @@ class IndividualDetailsStubSpec extends BaseSpec {
       ApiPlatformTestUserStub.getByShortNinoReturnsTestUserDetails(nino, individual)
 
       When("I retrieve the individual by its SHORTNINO")
-      val result = Http(s"$serviceUrl/pay-as-you-earn/02.00.00/individuals/${ninoNoSuffix.nino}").asString
-      result.code shouldBe Status.OK
+      val result = wsClient.url(s"$serviceUrl/pay-as-you-earn/02.00.00/individuals/${ninoNoSuffix.nino}").get()
+      result.map { response =>
+        response.status shouldBe Status.OK
 
-      Then("The individual is returned in an openid connect DES format")
-      Json.parse(result.body) shouldBe Json.toJson(OpenidIndividual(individual))
+        Then("The individual is returned in an openid connect DES format")
+        Json.parse(response.body) shouldBe Json.toJson(OpenidIndividual(individual))
+      }
     }
 
     Scenario("Retrieve an individual with a non-existing SHORTNINO") {
@@ -95,11 +108,13 @@ class IndividualDetailsStubSpec extends BaseSpec {
       ApiPlatformTestUserStub.getByShortNinoReturnsNoTestUser(ninoNoSuffix)
 
       When("I try to match the individual by its SHORTNINO")
-      val result = Http(s"$serviceUrl/pay-as-you-earn/02.00.00/individuals/${ninoNoSuffix.nino}").asString
+      val result = wsClient.url(s"$serviceUrl/pay-as-you-earn/02.00.00/individuals/${ninoNoSuffix.nino}").get()
 
       Then("A 404 (Not Found) is returned")
-      result.code shouldBe Status.NOT_FOUND
-      Json.parse(result.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
+      result.map { response =>
+        response.status shouldBe Status.NOT_FOUND
+        Json.parse(response.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
+      }
     }
   }
 
@@ -113,11 +128,13 @@ class IndividualDetailsStubSpec extends BaseSpec {
       ApiPlatformTestUserStub.getByNinoReturnsTestUserDetails(nino, cidPerson)
 
       When("I retrieve the individual by its NINO")
-      val result = Http(s"$serviceUrl/matching/find?nino=${nino.nino}").asString
-      result.code shouldBe Status.OK
+      val result = wsClient.url(s"$serviceUrl/matching/find?nino=${nino.nino}").get()
+      result.map { response =>
+        response.status shouldBe Status.OK
 
-      Then("The individual is returned in an citizen-details format")
-      Json.parse(result.body) shouldBe Json.toJson(Seq(cidPerson))
+        Then("The individual is returned in an citizen-details format")
+        Json.parse(response.body) shouldBe Json.toJson(Seq(cidPerson))
+      }
     }
 
     Scenario("Retrieve an individual with a non existing NINO") {
@@ -126,11 +143,13 @@ class IndividualDetailsStubSpec extends BaseSpec {
       ApiPlatformTestUserStub.getByNinoReturnsNoTestUser(nino)
 
       When("I try to match the individual by its NINO")
-      val result = Http(s"$serviceUrl/matching/find?nino=${nino.nino}").asString
+      val result = wsClient.url(s"$serviceUrl/matching/find?nino=${nino.nino}").get()
 
       Then("A 404 (Not Found) is returned")
-      result.code shouldBe Status.NOT_FOUND
-      Json.parse(result.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
+      result.map { response =>
+        response.status shouldBe Status.NOT_FOUND
+        Json.parse(response.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
+      }
     }
 
     Scenario("Retrieve an individual by SA UTR") {
@@ -141,11 +160,13 @@ class IndividualDetailsStubSpec extends BaseSpec {
       ApiPlatformTestUserStub.getBySaUtrReturnsTestUserDetails(saUtr, cidPerson)
 
       When("I retrieve the individual by its SA UTR")
-      val result = Http(s"$serviceUrl/matching/find?sautr=${saUtr.utr}").asString
-      result.code shouldBe Status.OK
+      val result = wsClient.url(s"$serviceUrl/matching/find?sautr=${saUtr.utr}").get()
+      result.map { response =>
+        response.status shouldBe Status.OK
 
-      Then("The individual is returned in an citizen-details format")
-      Json.parse(result.body) shouldBe Json.toJson(Seq(cidPerson))
+        Then("The individual is returned in an citizen-details format")
+        Json.parse(response.body) shouldBe Json.toJson(Seq(cidPerson))
+      }
     }
 
     Scenario("Retrieve an individual with a non existing SA UTR") {
@@ -154,24 +175,27 @@ class IndividualDetailsStubSpec extends BaseSpec {
       ApiPlatformTestUserStub.getBySaUtrReturnsNoTestUser(saUtr)
 
       When("I try to match the individual by its SA UTR")
-      val result = Http(s"$serviceUrl/matching/find?sautr=${saUtr.utr}").asString
+      val result = wsClient.url(s"$serviceUrl/matching/find?sautr=${saUtr.utr}").get()
 
       Then("A 404 (Not Found) is returned")
-      result.code shouldBe Status.NOT_FOUND
-      Json.parse(result.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
+      result.map { response =>
+        response.status shouldBe Status.NOT_FOUND
+        Json.parse(response.body) shouldBe Json.obj("code" -> "NOT_FOUND", "message" -> "Individual not found")
+      }
     }
 
     Scenario("Retrieve an individual without a NINO or SA UTR") {
 
       Given("A no NINO or SA UTR parameters")
-      val httpRequest = Http(s"$serviceUrl/matching/find")
+      val result = wsClient.url(s"$serviceUrl/matching/find").get()
 
       When("I invoke the '/matching/find' endpoint")
-      val result = httpRequest.asString
 
       Then("A 400 (Bad Request) is returned")
-      result.code shouldBe Status.BAD_REQUEST
-      Json.parse(result.body) shouldBe Json.obj("code" -> "BAD_REQUEST", "message" -> "sautr or nino is required")
+      result.map { response =>
+        response.status shouldBe Status.BAD_REQUEST
+        Json.parse(response.body) shouldBe Json.obj("code" -> "BAD_REQUEST", "message" -> "sautr or nino is required")
+      }
     }
   }
 }

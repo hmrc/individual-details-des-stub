@@ -18,19 +18,20 @@ package uk.gov.hmrc.individualdetailsdesstub.connector
 
 import com.google.inject.{Inject, Singleton}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.individualdetailsdesstub.domain.{NinoNoSuffix, TestIndividual, TestUserNotFoundException}
-import uk.gov.hmrc.individualdetailsdesstub.http.HttpClientOps
 import uk.gov.hmrc.individualdetailsdesstub.util.JsonFormatters.formatTestUser
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApiPlatformTestUserConnector @Inject()(servicesConfig: ServicesConfig, httpClientOps: HttpClientOps)(implicit ec: ExecutionContext) {
+class ApiPlatformTestUserConnector @Inject() (servicesConfig: ServicesConfig, http: HttpClientV2)(implicit
+  ec: ExecutionContext
+) {
   val serviceUrl: String = servicesConfig.baseUrl("api-platform-test-user")
-  val http: HttpGet = httpClientOps.http
 
   def getByNino(nino: Nino)(implicit hc: HeaderCarrier): Future[TestIndividual] =
     getTestIndividual(s"$serviceUrl/individuals/nino/$nino")
@@ -42,7 +43,7 @@ class ApiPlatformTestUserConnector @Inject()(servicesConfig: ServicesConfig, htt
     getTestIndividual(s"$serviceUrl/individuals/sautr/${saUtr.utr}")
 
   private def getTestIndividual(url: String)(implicit hc: HeaderCarrier) =
-    http.GET[TestIndividual](url) recover {
+    http.get(url"$url").execute[TestIndividual].recover {
       case ex: UpstreamErrorResponse if ex.statusCode == 404 => throw new TestUserNotFoundException
     }
 }

@@ -14,9 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.individualdetailsdesstub.http
+package util
 
-import com.google.inject.Inject
-import uk.gov.hmrc.http.HttpClient
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class HttpClientOps @Inject()(val http: HttpClient)
+import scala.language.{implicitConversions, postfixOps}
+
+trait UnitSpec extends AnyWordSpec with Matchers {
+
+  import scala.concurrent.duration.*
+  import scala.concurrent.{Await, Future}
+
+  implicit val defaultTimeout: FiniteDuration = 5 seconds
+
+  def await[A](future: Future[A])(implicit timeout: Duration): A = Await.result(future, timeout)
+
+}

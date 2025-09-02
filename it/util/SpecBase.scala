@@ -14,25 +14,31 @@
  * limitations under the License.
  */
 
-package unit.uk.gov.hmrc.individualdetailsdesstub.util
-
-package utils
+package util
 
 import com.typesafe.config.ConfigFactory
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, Configuration}
+import uk.gov.hmrc.http.test.WireMockSupport
 
-trait SpecBase extends UnitSpec with GuiceOneAppPerSuite {
+trait SpecBase extends UnitSpec with GuiceOneAppPerSuite with WireMockSupport {
 
-  override lazy val fakeApplication: Application = new GuiceApplicationBuilder()
-    .configure(Configuration(
-      ConfigFactory.parseString(
-        """
-          | metrics.jvm = false
-          | metrics.enabled = true
-          """.stripMargin)
-    ).withFallback(Configuration()))
-    .build()
+  private val config = Configuration(
+    ConfigFactory.parseString(
+      s"""
+         |microservice {
+         |  services {
+         |      api-platform-test-user {
+         |        host     = $wireMockHost
+         |        port     = $wireMockPort
+         |    }
+         |  }
+         |}
+         |""".stripMargin
+    )
+  )
 
+  override def fakeApplication(): Application =
+    new GuiceApplicationBuilder().configure(config).configure("metrics.jvm" -> false).build()
 }

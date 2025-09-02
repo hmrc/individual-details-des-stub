@@ -18,13 +18,12 @@ package uk.gov.hmrc.individualdetailsdesstub.config
 
 import com.google.inject.name.Names
 import com.google.inject.{AbstractModule, Inject}
-import play.api.{Configuration, Environment}
+import com.typesafe.config.Config
 
-class AppConfig @Inject()(environment: Environment, configuration: Configuration) extends AbstractModule {
+class AppConfig @Inject() (config: Config) extends AbstractModule {
 
   override def configure(): Unit = {
-    val delay = configuration.getOptional[Int]("retryDelay").getOrElse(1000)
-
+    val delay = Option.when(config.hasPath("retryDelay"))(config.getInt("retryDelay")).getOrElse(1000)
     bindConstant().annotatedWith(Names.named("retryDelay")).to(delay)
   }
 

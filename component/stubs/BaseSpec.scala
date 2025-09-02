@@ -27,33 +27,33 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 
 import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
-trait BaseSpec extends AnyFeatureSpec
-  with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with GuiceOneServerPerSuite with GivenWhenThen {
+trait BaseSpec
+    extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with GuiceOneServerPerSuite
+    with GivenWhenThen {
 
-  implicit override lazy val app: Application = GuiceApplicationBuilder().configure(
-    "auditing.enabled" -> false,
-    "auditing.traceRequests" -> false,
-    "microservice.services.api-platform-test-user.port" -> ApiPlatformTestUserStub.port,
-    "run.mode" -> "It"
-  ).build()
+  implicit override lazy val app: Application = GuiceApplicationBuilder()
+    .configure(
+      "auditing.enabled"                                  -> false,
+      "auditing.traceRequests"                            -> false,
+      "microservice.services.api-platform-test-user.port" -> ApiPlatformTestUserStub.port,
+      "run.mode"                                          -> "It"
+    )
+    .build()
 
-  val timeout = Duration(5, TimeUnit.SECONDS)
+  val timeout: FiniteDuration = Duration(5, TimeUnit.SECONDS)
   val serviceUrl = s"http://localhost:$port"
   val mocks = Seq(ApiPlatformTestUserStub)
 
-  override protected def beforeEach(): Unit = {
+  override protected def beforeEach(): Unit =
     mocks.foreach(m => if (!m.server.isRunning) m.server.start())
-  }
 
-  override protected def afterEach(): Unit = {
+  override protected def afterEach(): Unit =
     mocks.foreach(_.mock.resetMappings())
-  }
 
-  override def afterAll(): Unit = {
+  override def afterAll(): Unit =
     mocks.foreach(_.server.stop())
-  }
 }
 
 case class MockHost(port: Int) {
